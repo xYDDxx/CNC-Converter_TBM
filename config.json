@@ -1,0 +1,9 @@
+{
+    "excel_path": "C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/data/convert_table.xlsx",
+    "source_dir": "C:/Users/ianfe/Documents",
+    "target_dir": "./output",
+    "cut_prefix": "",
+    "add_prefix": "_Z",
+    "new_ext": ".ZNC",
+    "active_source_file": "C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/input/l53-0100.dnc"
+}
