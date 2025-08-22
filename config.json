@@ -5,5 +5,26 @@
     "cut_prefix": "",
     "add_prefix": "_Z",
     "new_ext": ".ZNC",
-    "active_source_file": "C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/input/l53-0100.dnc"
+    "active_source_file": "C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/input/l53-0100.dnc",
+    "converter_dir": "./data",
+    "source_prefix_count": 3,
+    "source_prefix_specific": false,
+    "source_prefix_string": "",
+    "target_prefix_count": 0,
+    "target_prefix_specific": false,
+    "target_prefix_string": "",
+    "file_endings": [
+        {
+            "source": "",
+            "target": ""
+        },
+        {
+            "source": "",
+            "target": ""
+        },
+        {
+            "source": "",
+            "target": ""
+        }
+    ]
 }

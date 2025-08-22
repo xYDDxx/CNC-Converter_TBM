@@ -80,6 +80,123 @@ def apply_rules_to_cnc(lines: List[str], rules: Dict[str, str]) -> List[str]:
 
     return new_lines
 
+def process_filename(original_filename: str, 
+                    source_prefix_count: int = 0,
+                    source_prefix_specific: bool = False,
+                    source_prefix_string: str = "",
+                    target_prefix_count: int = 0,
+                    target_prefix_specific: bool = False,
+                    target_prefix_string: str = "",
+                    file_endings: List[Dict[str, str]] = None) -> str:
+    """
+    Verarbeitet Dateinamen gemäß Präfix- und Endungsregeln.
+    
+    Args:
+        original_filename: Ursprünglicher Dateiname mit Endung
+        source_prefix_count: Anzahl Zeichen vom Anfang zu entfernen
+        source_prefix_specific: Nur entfernen wenn spezifischer String gefunden
+        source_prefix_string: Spezifischer String der entfernt werden soll
+        target_prefix_count: Anzahl Zeichen für neuen Präfix
+        target_prefix_specific: Nur hinzufügen wenn alter spezifischer Präfix erkannt wurde
+        target_prefix_string: Neuer Präfix-String
+        file_endings: Liste mit Endungs-Mappings [{"source": ".dnc", "target": ".znc"}, ...]
+    
+    Returns:
+        Neuer Dateiname
+    """
+    if file_endings is None:
+        file_endings = []
+    
+    # Dateiname und Endung trennen
+    name, ext = os.path.splitext(original_filename)
+    original_name = name
+    
+    # 1. Quell-Präfix entfernen
+    cut_prefix = ""
+    if source_prefix_count > 0:
+        if source_prefix_specific and source_prefix_string:
+            # Nur entfernen wenn spezifischer String am Anfang steht
+            if name.startswith(source_prefix_string) and len(source_prefix_string) == source_prefix_count:
+                cut_prefix = source_prefix_string
+                name = name[len(source_prefix_string):]
+        else:
+            # Generell erste N Zeichen entfernen
+            if len(name) >= source_prefix_count:
+                cut_prefix = name[:source_prefix_count]
+                name = name[source_prefix_count:]
+    
+    # 2. Ziel-Präfix hinzufügen
+    if target_prefix_count > 0 and target_prefix_string:
+        if target_prefix_specific:
+            # Nur hinzufügen wenn spezifischer Quell-Präfix erkannt wurde
+            if cut_prefix and len(target_prefix_string) == target_prefix_count:
+                name = target_prefix_string + name
+        else:
+            # Immer hinzufügen (bei korrekter Länge)
+            if len(target_prefix_string) == target_prefix_count:
+                name = target_prefix_string + name
+    
+    # 3. Dateiendung anpassen
+    new_ext = ext
+    for mapping in file_endings:
+        source_end = mapping.get("source", "").strip()
+        target_end = mapping.get("target", "").strip()
+        
+        if not source_end and not target_end:
+            continue
+            
+        if not source_end and target_end:
+            # Endung anhängen
+            new_ext = ext + target_end
+            break
+        elif source_end and not target_end:
+            # Endung entfernen
+            if ext.lower() == source_end.lower():
+                new_ext = ""
+            break
+        elif source_end and target_end:
+            # Endung ersetzen
+            if ext.lower() == source_end.lower():
+                new_ext = target_end
+            break
+    
+    return name + new_ext
+
+def validate_filename_settings(source_prefix_count: int, source_prefix_string: str,
+                              target_prefix_count: int, target_prefix_string: str,
+                              file_endings: List[Dict[str, str]]) -> List[str]:
+    """
+    Validiert die Dateinamen-Einstellungen und gibt Fehlermeldungen zurück.
+    
+    Returns:
+        Liste von Fehlermeldungen (leer wenn alles OK)
+    """
+    errors = []
+    
+    # Quell-Präfix validieren
+    if source_prefix_count > 0 and source_prefix_string:
+        if len(source_prefix_string) != source_prefix_count:
+            errors.append(f"Quell-Präfix '{source_prefix_string}' hat {len(source_prefix_string)} Zeichen, "
+                         f"aber {source_prefix_count} erwartet.")
+    
+    # Ziel-Präfix validieren
+    if target_prefix_count > 0 and target_prefix_string:
+        if len(target_prefix_string) != target_prefix_count:
+            errors.append(f"Ziel-Präfix '{target_prefix_string}' hat {len(target_prefix_string)} Zeichen, "
+                         f"aber {target_prefix_count} erwartet.")
+    
+    # Dateiendungen validieren
+    for i, mapping in enumerate(file_endings):
+        source_end = mapping.get("source", "").strip()
+        target_end = mapping.get("target", "").strip()
+        
+        if source_end and not source_end.startswith("."):
+            errors.append(f"Quell-Endung {i+1} '{source_end}' sollte mit '.' beginnen.")
+        if target_end and not target_end.startswith("."):
+            errors.append(f"Ziel-Endung {i+1} '{target_end}' sollte mit '.' beginnen.")
+    
+    return errors
+
 def save_cnc_file(lines: List[str], target_path: str):
     os.makedirs(os.path.dirname(target_path), exist_ok=True)
     with open(target_path, "w", encoding="utf-8") as f:

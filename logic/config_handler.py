@@ -5,9 +5,23 @@ DEFAULT_CONFIG = {
     "excel_path": "./data/convert_table.xlsx",
     "source_dir": "./input",
     "target_dir": "./output",
-    "cut_prefix": "",
-    "add_prefix": "_Z",
-    "new_ext": ".ZNC"
+    "converter_dir": "./data",
+    "active_source_file": "",
+    
+    # Präfix-Handling
+    "source_prefix_count": 0,
+    "source_prefix_specific": False,
+    "source_prefix_string": "",
+    "target_prefix_count": 0,
+    "target_prefix_specific": False,
+    "target_prefix_string": "_Z",
+    
+    # Dateiendungen-Mapping
+    "file_endings": [
+        {"source": "", "target": ".ZNC"},
+        {"source": "", "target": ""},
+        {"source": "", "target": ""}
+    ]
 }
 
 CONFIG_FILE = "./config.json"
@@ -21,7 +35,12 @@ def load_config() -> dict:
 
     try:
         with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
+            config = json.load(f)
+            # Ensure all default keys exist
+            for key, value in DEFAULT_CONFIG.items():
+                if key not in config:
+                    config[key] = value
+            return config
     except Exception as e:
         print(f"⚠ Fehler beim Laden von config.json: {e}")
         return DEFAULT_CONFIG.copy()
