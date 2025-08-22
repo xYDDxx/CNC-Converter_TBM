@@ -20,7 +20,7 @@ class CNCConverterUI(QMainWindow):
         self.setWindowTitle("CNC-Konverter")
         self.setGeometry(200, 200, 1400, 800)
 
-        # Config laden (fehlende Keys tolerant nachrüsten)
+        # Config laden
         self.config = load_config()
         self.config.setdefault("source_dir", "./input")
         self.config.setdefault("target_dir", "./output")
@@ -57,18 +57,14 @@ class CNCConverterUI(QMainWindow):
         header_layout.addLayout(logo_row)
         main_layout.addLayout(header_layout)
 
-        # Grid für Module mit größeren Abständen zwischen den Modulen
+        # Grid für Module
         grid = QGridLayout()
         grid.setHorizontalSpacing(40)
         grid.setVerticalSpacing(10)
 
-        # Quell-Bereich
+        # Abschnitte
         self.add_source_section(grid, 0)
-
-        # Konverter-Bereich
         self.add_converter_section(grid, 2)
-
-        # Ziel-Bereich
         self.add_target_section(grid, 4)
 
         main_layout.addLayout(grid)
@@ -90,7 +86,7 @@ class CNCConverterUI(QMainWindow):
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
 
-        # Nach Aufbau: Initiale Pfade in Views setzen
+        # Nach Aufbau: Initiale Pfade setzen
         self._apply_initial_paths_to_views()
 
     # ----------------- Abschnitte -----------------
@@ -118,19 +114,19 @@ class CNCConverterUI(QMainWindow):
         grid.addLayout(pair_layout, 2, col_start, 1, 2)
 
         self.chk_convert_all = QCheckBox("Konvertiere Alle")
+        self.chk_convert_all.stateChanged.connect(self._toggle_batch_mode)
         grid.addWidget(self.chk_convert_all, 3, col_start)
 
-        # Feld für aktives Quellfile (statt Button)
+        # Feld für aktives Quellfile
         grid.addWidget(QLabel("Akt. Aktives Quellfile"), 4, col_start, 1, 2)
         self.active_src_file = QLineEdit()
         self.active_src_file.setPlaceholderText("Kein Quellfile ausgewählt")
         self.active_src_file.setReadOnly(True)
-        # Falls in config vorhanden, Name anzeigen
         if self.config.get("active_source_file"):
             self.active_src_file.setText(os.path.basename(self.config["active_source_file"]))
         grid.addWidget(self.active_src_file, 5, col_start, 1, 2)
 
-        # Präfix-UI (optisch wie gehabt; Logik-Hooks kommen später)
+        # Präfix-UI
         grid.addWidget(QLabel("Quell-Dateinamen-Präfix abschneiden"), 6, col_start, 1, 2)
         grid.addWidget(QLabel("Anzahl Zeichen"), 7, col_start)
         self.src_prefix_count = QComboBox()
@@ -165,7 +161,7 @@ class CNCConverterUI(QMainWindow):
         pair_layout.addWidget(self.conv_list)
         grid.addLayout(pair_layout, 2, col_start, 1, 2)
 
-        # Aktives Konverter-File (Excel)
+        # Aktives Konverter-File
         grid.addWidget(QLabel("Aktives Konverter-File"), 3, col_start, 1, 2)
         self.active_conv_file = QLineEdit()
         self.active_conv_file.setPlaceholderText("Kein Konverter-File ausgewählt")
@@ -174,7 +170,7 @@ class CNCConverterUI(QMainWindow):
             self.active_conv_file.setText(os.path.basename(self.config["excel_path"]))
         grid.addWidget(self.active_conv_file, 4, col_start, 1, 2)
 
-        # Datei-Endungen Q -> Z (optisch wie gehabt; Logik später)
+        # Datei-Endungen Q -> Z
         grid.addWidget(QLabel("Datei Endungen Q -> Z"), 5, col_start, 1, 2)
         self.endings_q = [QLineEdit() for _ in range(3)]
         self.endings_z = [QLineEdit() for _ in range(3)]
@@ -207,7 +203,7 @@ class CNCConverterUI(QMainWindow):
         pair_layout.addWidget(self.dst_list)
         grid.addLayout(pair_layout, 2, col_start, 1, 2)
 
-        # Ziel-Präfix-Einstellungen (optisch beibehalten)
+        # Ziel-Präfix
         grid.addWidget(QLabel("Ziel-Dateinamen-Präfix anhängen"), 4, col_start, 1, 2)
         grid.addWidget(QLabel("Anzahl Zeichen"), 5, col_start)
         self.dst_prefix_count = QComboBox()
@@ -233,7 +229,6 @@ class CNCConverterUI(QMainWindow):
         list_view = QListView()
         list_view.setModel(model)
 
-        # Klick auf Tree: Ordner in der Liste anzeigen
         def on_tree_clicked(index):
             path = model.filePath(index)
             if os.path.isdir(path):
@@ -241,53 +236,53 @@ class CNCConverterUI(QMainWindow):
 
         tree.clicked.connect(on_tree_clicked)
 
-        # Doppelklick auf Datei in Liste: aktive Datei setzen
         def on_list_double_clicked(index):
             path = model.filePath(index)
             if not os.path.isfile(path):
                 return
 
             if section == "source":
-                # aktives Quellfile setzen (Name anzeigen, Pfad speichern)
                 self.active_src_file.setText(os.path.basename(path))
                 update_config("active_source_file", path)
             elif section == "converter":
-                # Nur Excel erlauben
                 if path.lower().endswith((".xlsx", ".xls")):
                     self.active_conv_file.setText(os.path.basename(path))
                     update_config("excel_path", path)
                 else:
                     QMessageBox.information(
                         self, "Hinweis",
-                        "Bitte ein Excel-File (*.xlsx / *.xls) per Doppelklick wählen."
+                        "Bitte ein Excel-File (*.xlsx / *.xls) wählen."
                     )
-            else:
-                # target: keine Datei-Auswahl nötig
-                pass
 
         list_view.doubleClicked.connect(on_list_double_clicked)
         return tree, list_view
 
+    # ----------------- Batch Umschalter -----------------
+    def _toggle_batch_mode(self, state):
+        if self.chk_convert_all.isChecked():
+            self.active_src_file.setText("Batch Konvertierung aktiv")
+            self.active_src_file.setEnabled(False)
+        else:
+            self.active_src_file.setEnabled(True)
+            active = self.config.get("active_source_file", "")
+            if active:
+                self.active_src_file.setText(os.path.basename(active))
+            else:
+                self.active_src_file.clear()
+                self.active_src_file.setPlaceholderText("Kein Quellfile ausgewählt")
+
     # ----------------- Backend Hooks -----------------
     def _apply_initial_paths_to_views(self):
-        # Source
-        if self.src_dir_field.text().strip():
-            model = self.src_tree.model()
-            p = self.src_dir_field.text().strip()
-            self.src_tree.setRootIndex(model.index(p))
-            self.src_list.setRootIndex(model.index(p))
-        # Converter
-        if self.conv_dir_field.text().strip():
-            model = self.conv_tree.model()
-            p = self.conv_dir_field.text().strip()
-            self.conv_tree.setRootIndex(model.index(p))
-            self.conv_list.setRootIndex(model.index(p))
-        # Target
-        if self.dst_dir_field.text().strip():
-            model = self.dst_tree.model()
-            p = self.dst_dir_field.text().strip()
-            self.dst_tree.setRootIndex(model.index(p))
-            self.dst_list.setRootIndex(model.index(p))
+        for field, tree, lst in [
+            (self.src_dir_field, self.src_tree, self.src_list),
+            (self.conv_dir_field, self.conv_tree, self.conv_list),
+            (self.dst_dir_field, self.dst_tree, self.dst_list)
+        ]:
+            if field.text().strip():
+                model = tree.model()
+                p = field.text().strip()
+                tree.setRootIndex(model.index(p))
+                lst.setRootIndex(model.index(p))
 
     def select_directory(self, path_field, tree_view, list_view, section: str):
         directory = QFileDialog.getExistingDirectory(
@@ -299,78 +294,35 @@ class CNCConverterUI(QMainWindow):
             model = tree_view.model()
             tree_view.setRootIndex(model.index(directory))
             list_view.setRootIndex(model.index(directory))
-
-            # Persistieren
-            if section == "source":
-                update_config("source_dir", directory)
-            elif section == "converter":
-                update_config("converter_dir", directory)
-            elif section == "target":
-                update_config("target_dir", directory)
+            update_config(section + "_dir", directory)
 
     def start_conversion(self):
         try:
             source_dir = self.src_dir_field.text().strip()
             target_dir = self.dst_dir_field.text().strip()
-            excel_path = self._resolve_excel_path()
+            excel_path = load_config().get("excel_path", "")
 
-            if not os.path.isdir(source_dir):
-                QMessageBox.critical(self, "Fehler", "Bitte ein gültiges Quellverzeichnis wählen.")
-                return
-            if not os.path.isdir(target_dir):
-                QMessageBox.critical(self, "Fehler", "Bitte ein gültiges Zielverzeichnis wählen.")
-                return
-            if not (excel_path and os.path.isfile(excel_path)):
-                QMessageBox.critical(self, "Fehler", "Bitte ein gültiges Konverter-Excel per Doppelklick wählen.")
+            if not os.path.isdir(source_dir) or not os.path.isdir(target_dir) or not os.path.isfile(excel_path):
+                QMessageBox.critical(self, "Fehler", "Bitte gültige Verzeichnisse/Excel auswählen.")
                 return
 
             rules = load_rules_from_excel(excel_path)
 
             if self.chk_convert_all.isChecked():
-                # Batch
-                batch_convert(
-                    source_dir, target_dir, rules,
-                    cut_prefix="", add_prefix="_Z", new_ext=".ZNC"
-                )
-                QMessageBox.information(self, "Batch", "Alle Dateien erfolgreich konvertiert.")
+                batch_convert(source_dir, target_dir, rules, cut_prefix="", add_prefix="_Z", new_ext=".ZNC")
+                QMessageBox.information(self, "Batch", "Alle Dateien konvertiert.")
             else:
-                # Einzeldatei über aktives Quellfile
-                active_src_path = self._resolve_active_source_file()
-                if not active_src_path:
-                    QMessageBox.information(
-                        self, "Hinweis",
-                        "Bitte im Quell-ListView per Doppelklick eine Datei wählen (Akt. Aktives Quellfile)."
-                    )
+                active_src = load_config().get("active_source_file", "")
+                if not active_src or not os.path.isfile(active_src):
+                    QMessageBox.information(self, "Hinweis", "Bitte ein Quellfile auswählen.")
                     return
-                convert_single_file(
-                    active_src_path, target_dir, rules,
-                    cut_prefix="", add_prefix="_Z", new_ext=".ZNC"
-                )
-                QMessageBox.information(
-                    self, "Erfolg",
-                    f"Datei erfolgreich konvertiert:\n{os.path.basename(active_src_path)}"
-                )
+                convert_single_file(active_src, target_dir, rules, cut_prefix="", add_prefix="_Z", new_ext=".ZNC")
+                QMessageBox.information(self, "Erfolg", f"{os.path.basename(active_src)} konvertiert.")
 
-            # Nachlauf: Ziel-Ansicht aktualisieren
             self._refresh_target_view()
 
         except Exception as e:
-            QMessageBox.critical(self, "Fehler", f"Fehler bei der Konvertierung:\n{str(e)}")
-
-    def _resolve_excel_path(self) -> str:
-        # bevorzugt config, da dort der volle Pfad liegt
-        excel = load_config().get("excel_path", "")  # frisch lesen
-        if excel and os.path.isfile(excel):
-            return excel
-        # Fallback: nichts
-        return ""
-
-    def _resolve_active_source_file(self) -> str:
-        cfg = load_config()
-        active = cfg.get("active_source_file", "")
-        if active and os.path.isfile(active):
-            return active
-        return ""
+            QMessageBox.critical(self, "Fehler", str(e))
 
     def _refresh_target_view(self):
         model = self.dst_tree.model()

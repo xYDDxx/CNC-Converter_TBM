@@ -1,6 +1,6 @@
 {
     "excel_path": "C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/data/convert_table.xlsx",
-    "source_dir": "C:/Users/ianfe/Documents",
+    "source_dir": "C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code",
     "target_dir": "./output",
     "cut_prefix": "",
     "add_prefix": "_Z",
