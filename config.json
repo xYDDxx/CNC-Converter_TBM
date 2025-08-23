@@ -1,18 +1,18 @@
 {
     "excel_path": "C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/data/convert_table.xlsx",
     "source_dir": "C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/input",
-    "target_dir": "./output",
+    "target_dir": "C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/output",
     "cut_prefix": "",
     "add_prefix": "_Z",
     "new_ext": ".ZNC",
     "active_source_file": "C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/input/l53-0100.dnc",
-    "converter_dir": "./data",
+    "converter_dir": "C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/data",
     "source_prefix_count": 3,
     "source_prefix_specific": false,
     "source_prefix_string": "",
-    "target_prefix_count": 3,
+    "target_prefix_count": 4,
     "target_prefix_specific": false,
-    "target_prefix_string": "NEW",
+    "target_prefix_string": "NEV_",
     "file_endings": [
         {
             "source": ".dnc",

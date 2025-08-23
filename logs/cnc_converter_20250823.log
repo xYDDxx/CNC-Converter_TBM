@@ -1,0 +1,244 @@
+2025-08-23 16:12:02 - INFO - === CNC-Konverter gestartet ===
+2025-08-23 16:12:02 - DEBUG - Config geändert: target_prefix_count = '3' → '0'
+2025-08-23 16:12:02 - DEBUG - Config geändert: target_prefix_string = 'NEW' → ''
+2025-08-23 16:12:17 - INFO - Konvertierung angefordert vom Benutzer
+2025-08-23 16:12:17 - DEBUG - === Umfassende Validierung gestartet ===
+2025-08-23 16:12:17 - DEBUG - Excel-Datei erfolgreich validiert: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/data/convert_table.xlsx
+2025-08-23 16:12:17 - DEBUG - Einzeldatei-Modus: Datei validiert: l53-0100.dnc
+2025-08-23 16:12:17 - DEBUG - Dateinamen-Einstellungen erfolgreich validiert.
+2025-08-23 16:12:17 - DEBUG - Schreibberechtigung für Zielverzeichnis bestätigt: ./output
+2025-08-23 16:12:17 - INFO - ✅ Alle Validierungen erfolgreich bestanden.
+2025-08-23 16:12:17 - INFO - Excel-Regeln geladen: 127 Einträge
+2025-08-23 16:12:17 - DEBUG - Starte Konvertierung: l53-0100.dnc
+2025-08-23 16:12:17 - INFO - ✅ Erfolgreich: l53-0100.dnc → -0100.cnc (4 Regeln angewendet)
+2025-08-23 16:12:17 - INFO - ✅ Konvertiert: l53-0100.dnc -> -0100.cnc
+2025-08-23 16:12:25 - ERROR - Unerwarteter Fehler beim Starten der Konvertierung: name 'QDialog' is not defined
+2025-08-23 16:12:36 - INFO - Konvertierung angefordert vom Benutzer
+2025-08-23 16:12:36 - DEBUG - === Umfassende Validierung gestartet ===
+2025-08-23 16:12:36 - DEBUG - Excel-Datei erfolgreich validiert: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/data/convert_table.xlsx
+2025-08-23 16:12:36 - DEBUG - Batch-Modus: 4 Dateien für Konvertierung gefunden.
+2025-08-23 16:12:36 - DEBUG - Dateinamen-Einstellungen erfolgreich validiert.
+2025-08-23 16:12:36 - DEBUG - Schreibberechtigung für Zielverzeichnis bestätigt: ./output
+2025-08-23 16:12:36 - INFO - ✅ Alle Validierungen erfolgreich bestanden.
+2025-08-23 16:12:36 - INFO - Excel-Regeln geladen: 127 Einträge
+2025-08-23 16:12:36 - INFO - === Konvertierung gestartet (Batch) ===
+2025-08-23 16:12:36 - INFO - Quelle: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/input
+2025-08-23 16:12:36 - INFO - Ziel: ./output
+2025-08-23 16:12:36 - INFO - 🔄 Starte Batch-Konvertierung: 4 Dateien aus 'C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/input' -> './output'
+2025-08-23 16:12:36 - INFO - 📁 Nur Dateien im aktuellen Ordner werden konvertiert (keine Unterordner).
+2025-08-23 16:12:36 - DEBUG - Starte Konvertierung: l53-0100.dnc
+2025-08-23 16:12:36 - INFO - ✅ Erfolgreich: l53-0100.dnc → -0100.cnc (4 Regeln angewendet)
+2025-08-23 16:12:36 - INFO - ✅ Konvertiert: l53-0100.dnc -> -0100.cnc
+2025-08-23 16:12:36 - DEBUG - Starte Konvertierung: l53-0400.dnc
+2025-08-23 16:12:36 - INFO - ✅ Erfolgreich: l53-0400.dnc → -0400.cnc (30 Regeln angewendet)
+2025-08-23 16:12:36 - INFO - ✅ Konvertiert: l53-0400.dnc -> -0400.cnc
+2025-08-23 16:12:36 - DEBUG - Starte Konvertierung: l53-0401.dnc
+2025-08-23 16:12:36 - INFO - ✅ Erfolgreich: l53-0401.dnc → -0401.cnc (16 Regeln angewendet)
+2025-08-23 16:12:36 - INFO - ✅ Konvertiert: l53-0401.dnc -> -0401.cnc
+2025-08-23 16:12:36 - DEBUG - Starte Konvertierung: l53-0402.dnc
+2025-08-23 16:12:36 - INFO - ✅ Erfolgreich: l53-0402.dnc → -0402.cnc (27 Regeln angewendet)
+2025-08-23 16:12:36 - INFO - ✅ Konvertiert: l53-0402.dnc -> -0402.cnc
+2025-08-23 16:12:36 - INFO - === Batch-Konvertierung abgeschlossen ===
+2025-08-23 16:12:36 - INFO - Gesamt: 4, Erfolgreich: 4, Fehlgeschlagen: 0
+2025-08-23 16:12:36 - INFO - 
+📊 Batch-Ergebnis: 4 erfolgreich, 0 fehlgeschlagen von 4 Dateien.
+2025-08-23 16:12:39 - ERROR - Unerwarteter Fehler beim Starten der Konvertierung: name 'QDialog' is not defined
+2025-08-23 16:12:43 - INFO - === CNC-Konverter beendet ===
+2025-08-23 16:17:40 - INFO - === CNC-Konverter gestartet ===
+2025-08-23 16:17:47 - INFO - Konvertierung angefordert vom Benutzer
+2025-08-23 16:17:47 - DEBUG - === Umfassende Validierung gestartet ===
+2025-08-23 16:17:47 - DEBUG - Excel-Datei erfolgreich validiert: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/data/convert_table.xlsx
+2025-08-23 16:17:47 - DEBUG - Einzeldatei-Modus: Datei validiert: l53-0100.dnc
+2025-08-23 16:17:47 - DEBUG - Dateinamen-Einstellungen erfolgreich validiert.
+2025-08-23 16:17:47 - DEBUG - Schreibberechtigung für Zielverzeichnis bestätigt: ./output
+2025-08-23 16:17:47 - INFO - ✅ Alle Validierungen erfolgreich bestanden.
+2025-08-23 16:17:47 - INFO - Excel-Regeln geladen: 127 Einträge
+2025-08-23 16:17:47 - DEBUG - Starte Konvertierung: l53-0100.dnc
+2025-08-23 16:17:47 - INFO - ✅ Erfolgreich: l53-0100.dnc → -0100.cnc (4 Regeln angewendet)
+2025-08-23 16:17:47 - INFO - ✅ Konvertiert: l53-0100.dnc -> -0100.cnc
+2025-08-23 16:18:43 - INFO - === CNC-Konverter beendet ===
+2025-08-23 16:21:20 - INFO - === CNC-Konverter gestartet ===
+2025-08-23 16:21:42 - INFO - === CNC-Konverter beendet ===
+2025-08-23 16:22:55 - INFO - === CNC-Konverter gestartet ===
+2025-08-23 16:23:01 - INFO - === CNC-Konverter beendet ===
+2025-08-23 16:24:28 - INFO - === CNC-Konverter gestartet ===
+2025-08-23 16:24:32 - INFO - === CNC-Konverter beendet ===
+2025-08-23 16:25:04 - INFO - === CNC-Konverter gestartet ===
+2025-08-23 16:25:11 - INFO - === CNC-Konverter beendet ===
+2025-08-23 16:25:37 - INFO - === CNC-Konverter gestartet ===
+2025-08-23 16:25:45 - INFO - Verzeichnis ausgewählt (target): 
+2025-08-23 16:25:58 - DEBUG - Config geändert: source_dir = 'C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/input' → 'C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code'
+2025-08-23 16:25:58 - INFO - Verzeichnis ausgewählt (source): C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code
+2025-08-23 16:26:08 - INFO - === CNC-Konverter beendet ===
+2025-08-23 16:28:56 - INFO - === CNC-Konverter gestartet ===
+2025-08-23 16:29:31 - INFO - Verzeichnis ausgewählt (converter): 
+2025-08-23 16:29:47 - INFO - Verzeichnis ausgewählt (target): C:/Program Files (x86)/Common Files/Adobe/ARM/1.0/UCB
+2025-08-23 16:29:58 - INFO - Verzeichnis ausgewählt (target): C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/output
+2025-08-23 16:30:14 - DEBUG - Config geändert: source_prefix_count = '3' → '0'
+2025-08-23 16:30:17 - DEBUG - Config geändert: target_prefix_string = '' → 'N'
+2025-08-23 16:30:17 - DEBUG - Config geändert: target_prefix_string = 'N' → 'NE'
+2025-08-23 16:30:17 - DEBUG - Config geändert: target_prefix_string = 'NE' → 'NEW'
+2025-08-23 16:30:19 - INFO - Konvertierung angefordert vom Benutzer
+2025-08-23 16:30:19 - DEBUG - === Umfassende Validierung gestartet ===
+2025-08-23 16:30:19 - WARNING - ⚠️ Validierungsfehler:
+2025-08-23 16:30:19 - WARNING -   - Zielverzeichnis darf kein Unterordner des Quellverzeichnisses sein.
+2025-08-23 16:30:19 - DEBUG - Excel-Datei erfolgreich validiert: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/data/convert_table.xlsx
+2025-08-23 16:30:19 - DEBUG - Einzeldatei-Modus: Datei validiert: l53-0100.dnc
+2025-08-23 16:30:19 - DEBUG - Dateinamen-Einstellungen erfolgreich validiert.
+2025-08-23 16:30:19 - DEBUG - Schreibberechtigung für Zielverzeichnis bestätigt: ./output
+2025-08-23 16:30:19 - WARNING - ⚠️ Validierung fehlgeschlagen: 1 Fehler gefunden.
+2025-08-23 16:30:20 - WARNING - Validierung fehlgeschlagen: 1 Fehler
+2025-08-23 16:30:23 - DEBUG - Config geändert: target_prefix_count = '0' → '3'
+2025-08-23 16:30:25 - INFO - Konvertierung angefordert vom Benutzer
+2025-08-23 16:30:25 - DEBUG - === Umfassende Validierung gestartet ===
+2025-08-23 16:30:25 - WARNING - ⚠️ Validierungsfehler:
+2025-08-23 16:30:25 - WARNING -   - Zielverzeichnis darf kein Unterordner des Quellverzeichnisses sein.
+2025-08-23 16:30:25 - DEBUG - Excel-Datei erfolgreich validiert: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/data/convert_table.xlsx
+2025-08-23 16:30:25 - DEBUG - Einzeldatei-Modus: Datei validiert: l53-0100.dnc
+2025-08-23 16:30:25 - DEBUG - Dateinamen-Einstellungen erfolgreich validiert.
+2025-08-23 16:30:25 - DEBUG - Schreibberechtigung für Zielverzeichnis bestätigt: ./output
+2025-08-23 16:30:25 - WARNING - ⚠️ Validierung fehlgeschlagen: 1 Fehler gefunden.
+2025-08-23 16:30:41 - WARNING - Validierung fehlgeschlagen: 1 Fehler
+2025-08-23 16:31:04 - DEBUG - Config geändert: source_dir = 'C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code' → 'C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/input'
+2025-08-23 16:31:04 - INFO - Verzeichnis ausgewählt (source): C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/input
+2025-08-23 16:31:05 - INFO - Konvertierung angefordert vom Benutzer
+2025-08-23 16:31:05 - DEBUG - === Umfassende Validierung gestartet ===
+2025-08-23 16:31:05 - WARNING - ⚠️ Validierungsfehler:
+2025-08-23 16:31:05 - WARNING -   - Zielverzeichnis darf kein Unterordner des Quellverzeichnisses sein.
+2025-08-23 16:31:05 - DEBUG - Excel-Datei erfolgreich validiert: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/data/convert_table.xlsx
+2025-08-23 16:31:05 - DEBUG - Einzeldatei-Modus: Datei validiert: l53-0100.dnc
+2025-08-23 16:31:05 - DEBUG - Dateinamen-Einstellungen erfolgreich validiert.
+2025-08-23 16:31:05 - DEBUG - Schreibberechtigung für Zielverzeichnis bestätigt: ./output
+2025-08-23 16:31:05 - WARNING - ⚠️ Validierung fehlgeschlagen: 1 Fehler gefunden.
+2025-08-23 16:31:08 - WARNING - Validierung fehlgeschlagen: 1 Fehler
+2025-08-23 16:31:09 - INFO - === CNC-Konverter beendet ===
+2025-08-23 16:31:16 - INFO - === CNC-Konverter gestartet ===
+2025-08-23 16:31:16 - DEBUG - Config geändert: target_prefix_string = 'NEW' → ''
+2025-08-23 16:31:25 - INFO - Konvertierung angefordert vom Benutzer
+2025-08-23 16:31:25 - DEBUG - === Umfassende Validierung gestartet ===
+2025-08-23 16:31:25 - DEBUG - Excel-Datei erfolgreich validiert: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/data/convert_table.xlsx
+2025-08-23 16:31:25 - DEBUG - Einzeldatei-Modus: Datei validiert: l53-0100.dnc
+2025-08-23 16:31:25 - DEBUG - Dateinamen-Einstellungen erfolgreich validiert.
+2025-08-23 16:31:25 - DEBUG - Schreibberechtigung für Zielverzeichnis bestätigt: ./output
+2025-08-23 16:31:25 - INFO - ✅ Alle Validierungen erfolgreich bestanden.
+2025-08-23 16:31:25 - INFO - Excel-Regeln geladen: 127 Einträge
+2025-08-23 16:31:25 - DEBUG - Starte Konvertierung: l53-0100.dnc
+2025-08-23 16:31:25 - INFO - ✅ Erfolgreich: l53-0100.dnc → l53-0100.cnc (4 Regeln angewendet)
+2025-08-23 16:31:25 - INFO - ✅ Konvertiert: l53-0100.dnc -> l53-0100.cnc
+2025-08-23 16:31:41 - INFO - Verzeichnis ausgewählt (target): C:/Users/ianfe/Desktop
+2025-08-23 16:31:47 - INFO - Verzeichnis ausgewählt (target): C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/data
+2025-08-23 16:31:56 - INFO - Verzeichnis ausgewählt (target): C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/output
+2025-08-23 16:32:00 - INFO - === CNC-Konverter beendet ===
+2025-08-23 16:32:02 - INFO - === CNC-Konverter gestartet ===
+2025-08-23 16:32:10 - INFO - Verzeichnis ausgewählt (converter): C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/data
+2025-08-23 18:33:11 - INFO - === CNC-Konverter beendet ===
+2025-08-23 18:33:19 - INFO - === CNC-Konverter gestartet ===
+2025-08-23 18:34:03 - DEBUG - Config geändert: target_prefix_string = '' → 'N'
+2025-08-23 18:34:03 - DEBUG - Config geändert: target_prefix_string = 'N' → 'NE'
+2025-08-23 18:34:03 - DEBUG - Config geändert: target_prefix_string = 'NE' → 'NEW'
+2025-08-23 18:34:05 - DEBUG - Config geändert: target_prefix_string = 'NEW' → 'NEW_'
+2025-08-23 18:34:08 - DEBUG - Config geändert: target_prefix_count = '3' → '4'
+2025-08-23 18:34:11 - DEBUG - Config geändert: source_prefix_count = '0' → '3'
+2025-08-23 18:34:12 - INFO - Konvertierung angefordert vom Benutzer
+2025-08-23 18:34:12 - DEBUG - === Umfassende Validierung gestartet ===
+2025-08-23 18:34:12 - DEBUG - Excel-Datei erfolgreich validiert: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/data/convert_table.xlsx
+2025-08-23 18:34:12 - DEBUG - Einzeldatei-Modus: Datei validiert: l53-0100.dnc
+2025-08-23 18:34:12 - DEBUG - Dateinamen-Einstellungen erfolgreich validiert.
+2025-08-23 18:34:12 - DEBUG - Schreibberechtigung für Zielverzeichnis bestätigt: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/output
+2025-08-23 18:34:12 - INFO - ✅ Alle Validierungen erfolgreich bestanden.
+2025-08-23 18:34:12 - INFO - Excel-Regeln geladen: 127 Einträge
+2025-08-23 18:34:12 - DEBUG - Starte Konvertierung: l53-0100.dnc
+2025-08-23 18:34:12 - INFO - ✅ Erfolgreich: l53-0100.dnc → NEW_-0100.cnc (4 Regeln angewendet)
+2025-08-23 18:34:12 - INFO - ✅ Konvertiert: l53-0100.dnc -> NEW_-0100.cnc
+2025-08-23 18:34:20 - INFO - Konvertierung angefordert vom Benutzer
+2025-08-23 18:34:20 - DEBUG - === Umfassende Validierung gestartet ===
+2025-08-23 18:34:20 - DEBUG - Excel-Datei erfolgreich validiert: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/data/convert_table.xlsx
+2025-08-23 18:34:20 - DEBUG - Batch-Modus: 4 Dateien für Konvertierung gefunden.
+2025-08-23 18:34:20 - DEBUG - Dateinamen-Einstellungen erfolgreich validiert.
+2025-08-23 18:34:20 - DEBUG - Schreibberechtigung für Zielverzeichnis bestätigt: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/output
+2025-08-23 18:34:20 - INFO - ✅ Alle Validierungen erfolgreich bestanden.
+2025-08-23 18:34:20 - INFO - Excel-Regeln geladen: 127 Einträge
+2025-08-23 18:34:20 - INFO - === Konvertierung gestartet (Batch) ===
+2025-08-23 18:34:20 - INFO - Quelle: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/input
+2025-08-23 18:34:20 - INFO - Ziel: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/output
+2025-08-23 18:34:20 - INFO - 🔄 Starte Batch-Konvertierung: 4 Dateien aus 'C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/input' -> 'C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/output'
+2025-08-23 18:34:20 - INFO - 📁 Nur Dateien im aktuellen Ordner werden konvertiert (keine Unterordner).
+2025-08-23 18:34:20 - DEBUG - Starte Konvertierung: l53-0100.dnc
+2025-08-23 18:34:20 - INFO - ✅ Erfolgreich: l53-0100.dnc → NEW_-0100.cnc (4 Regeln angewendet)
+2025-08-23 18:34:20 - INFO - ✅ Konvertiert: l53-0100.dnc -> NEW_-0100.cnc
+2025-08-23 18:34:20 - DEBUG - Starte Konvertierung: l53-0400.dnc
+2025-08-23 18:34:20 - INFO - ✅ Erfolgreich: l53-0400.dnc → NEW_-0400.cnc (30 Regeln angewendet)
+2025-08-23 18:34:20 - INFO - ✅ Konvertiert: l53-0400.dnc -> NEW_-0400.cnc
+2025-08-23 18:34:20 - DEBUG - Starte Konvertierung: l53-0401.dnc
+2025-08-23 18:34:20 - INFO - ✅ Erfolgreich: l53-0401.dnc → NEW_-0401.cnc (16 Regeln angewendet)
+2025-08-23 18:34:20 - INFO - ✅ Konvertiert: l53-0401.dnc -> NEW_-0401.cnc
+2025-08-23 18:34:20 - DEBUG - Starte Konvertierung: l53-0402.dnc
+2025-08-23 18:34:20 - INFO - ✅ Erfolgreich: l53-0402.dnc → NEW_-0402.cnc (27 Regeln angewendet)
+2025-08-23 18:34:20 - INFO - ✅ Konvertiert: l53-0402.dnc -> NEW_-0402.cnc
+2025-08-23 18:34:20 - INFO - === Batch-Konvertierung abgeschlossen ===
+2025-08-23 18:34:20 - INFO - Gesamt: 4, Erfolgreich: 4, Fehlgeschlagen: 0
+2025-08-23 18:34:20 - INFO - 
+📊 Batch-Ergebnis: 4 erfolgreich, 0 fehlgeschlagen von 4 Dateien.
+2025-08-23 18:34:26 - INFO - Konvertierung angefordert vom Benutzer
+2025-08-23 18:34:26 - DEBUG - === Umfassende Validierung gestartet ===
+2025-08-23 18:34:26 - DEBUG - Excel-Datei erfolgreich validiert: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/data/convert_table.xlsx
+2025-08-23 18:34:26 - DEBUG - Batch-Modus: 4 Dateien für Konvertierung gefunden.
+2025-08-23 18:34:26 - DEBUG - Dateinamen-Einstellungen erfolgreich validiert.
+2025-08-23 18:34:26 - DEBUG - Schreibberechtigung für Zielverzeichnis bestätigt: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/output
+2025-08-23 18:34:26 - INFO - ✅ Alle Validierungen erfolgreich bestanden.
+2025-08-23 18:34:26 - INFO - Excel-Regeln geladen: 127 Einträge
+2025-08-23 18:34:26 - INFO - === Konvertierung gestartet (Batch) ===
+2025-08-23 18:34:26 - INFO - Quelle: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/input
+2025-08-23 18:34:26 - INFO - Ziel: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/output
+2025-08-23 18:34:26 - INFO - 🔄 Starte Batch-Konvertierung: 4 Dateien aus 'C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/input' -> 'C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/output'
+2025-08-23 18:34:26 - INFO - 📁 Nur Dateien im aktuellen Ordner werden konvertiert (keine Unterordner).
+2025-08-23 18:34:26 - DEBUG - Starte Konvertierung: l53-0100.dnc
+2025-08-23 18:34:26 - INFO - ✅ Erfolgreich: l53-0100.dnc → NEW_-0100.cnc (4 Regeln angewendet)
+2025-08-23 18:34:26 - INFO - ✅ Konvertiert: l53-0100.dnc -> NEW_-0100.cnc
+2025-08-23 18:34:26 - DEBUG - Starte Konvertierung: l53-0400.dnc
+2025-08-23 18:34:26 - INFO - ✅ Erfolgreich: l53-0400.dnc → NEW_-0400.cnc (30 Regeln angewendet)
+2025-08-23 18:34:26 - INFO - ✅ Konvertiert: l53-0400.dnc -> NEW_-0400.cnc
+2025-08-23 18:34:26 - DEBUG - Starte Konvertierung: l53-0401.dnc
+2025-08-23 18:34:26 - INFO - ✅ Erfolgreich: l53-0401.dnc → NEW_-0401.cnc (16 Regeln angewendet)
+2025-08-23 18:34:26 - INFO - ✅ Konvertiert: l53-0401.dnc -> NEW_-0401.cnc
+2025-08-23 18:34:26 - DEBUG - Starte Konvertierung: l53-0402.dnc
+2025-08-23 18:34:26 - INFO - ✅ Erfolgreich: l53-0402.dnc → NEW_-0402.cnc (27 Regeln angewendet)
+2025-08-23 18:34:26 - INFO - ✅ Konvertiert: l53-0402.dnc -> NEW_-0402.cnc
+2025-08-23 18:34:26 - INFO - === Batch-Konvertierung abgeschlossen ===
+2025-08-23 18:34:26 - INFO - Gesamt: 4, Erfolgreich: 4, Fehlgeschlagen: 0
+2025-08-23 18:34:26 - INFO - 
+📊 Batch-Ergebnis: 4 erfolgreich, 0 fehlgeschlagen von 4 Dateien.
+2025-08-23 18:34:48 - DEBUG - Config geändert: source_dir = 'C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/input' → 'C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code'
+2025-08-23 18:34:48 - INFO - Verzeichnis ausgewählt (source): C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code
+2025-08-23 18:34:57 - DEBUG - Config geändert: target_prefix_string = 'NEW_' → 'NE_'
+2025-08-23 18:34:58 - DEBUG - Config geändert: target_prefix_string = 'NE_' → 'NEV_'
+2025-08-23 18:34:59 - INFO - Konvertierung angefordert vom Benutzer
+2025-08-23 18:34:59 - DEBUG - === Umfassende Validierung gestartet ===
+2025-08-23 18:34:59 - DEBUG - Excel-Datei erfolgreich validiert: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/data/convert_table.xlsx
+2025-08-23 18:34:59 - DEBUG - Batch-Modus: 4 Dateien für Konvertierung gefunden.
+2025-08-23 18:34:59 - DEBUG - Dateinamen-Einstellungen erfolgreich validiert.
+2025-08-23 18:34:59 - DEBUG - Schreibberechtigung für Zielverzeichnis bestätigt: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/output
+2025-08-23 18:34:59 - INFO - ✅ Alle Validierungen erfolgreich bestanden.
+2025-08-23 18:34:59 - INFO - Excel-Regeln geladen: 127 Einträge
+2025-08-23 18:34:59 - INFO - === Konvertierung gestartet (Batch) ===
+2025-08-23 18:34:59 - INFO - Quelle: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/input
+2025-08-23 18:34:59 - INFO - Ziel: C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/output
+2025-08-23 18:34:59 - INFO - 🔄 Starte Batch-Konvertierung: 4 Dateien aus 'C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/input' -> 'C:/Users/ianfe/Documents/Privat/Work/CNC Converter TBM/Code/output'
+2025-08-23 18:34:59 - INFO - 📁 Nur Dateien im aktuellen Ordner werden konvertiert (keine Unterordner).
+2025-08-23 18:34:59 - DEBUG - Starte Konvertierung: l53-0100.dnc
+2025-08-23 18:34:59 - INFO - ✅ Erfolgreich: l53-0100.dnc → NEV_-0100.cnc (4 Regeln angewendet)
+2025-08-23 18:34:59 - INFO - ✅ Konvertiert: l53-0100.dnc -> NEV_-0100.cnc
+2025-08-23 18:34:59 - DEBUG - Starte Konvertierung: l53-0400.dnc
+2025-08-23 18:34:59 - INFO - ✅ Erfolgreich: l53-0400.dnc → NEV_-0400.cnc (30 Regeln angewendet)
+2025-08-23 18:34:59 - INFO - ✅ Konvertiert: l53-0400.dnc -> NEV_-0400.cnc
+2025-08-23 18:34:59 - DEBUG - Starte Konvertierung: l53-0401.dnc
+2025-08-23 18:34:59 - INFO - ✅ Erfolgreich: l53-0401.dnc → NEV_-0401.cnc (16 Regeln angewendet)
+2025-08-23 18:34:59 - INFO - ✅ Konvertiert: l53-0401.dnc -> NEV_-0401.cnc
+2025-08-23 18:34:59 - DEBUG - Starte Konvertierung: l53-0402.dnc
+2025-08-23 18:34:59 - INFO - ✅ Erfolgreich: l53-0402.dnc → NEV_-0402.cnc (27 Regeln angewendet)
+2025-08-23 18:34:59 - INFO - ✅ Konvertiert: l53-0402.dnc -> NEV_-0402.cnc
+2025-08-23 18:34:59 - INFO - === Batch-Konvertierung abgeschlossen ===
+2025-08-23 18:34:59 - INFO - Gesamt: 4, Erfolgreich: 4, Fehlgeschlagen: 0
+2025-08-23 18:34:59 - INFO - 
+📊 Batch-Ergebnis: 4 erfolgreich, 0 fehlgeschlagen von 4 Dateien.
+2025-08-23 18:35:12 - INFO - === CNC-Konverter beendet ===

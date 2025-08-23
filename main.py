@@ -5,7 +5,7 @@ import platform
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QLabel, QPushButton, QListView,
     QComboBox, QLineEdit, QCheckBox, QGridLayout, QHBoxLayout, QVBoxLayout,
-    QFileDialog, QTreeView, QMessageBox
+    QFileDialog, QTreeView, QMessageBox, QDialog
 )
 from PyQt6.QtGui import QPixmap, QFileSystemModel
 from PyQt6.QtCore import Qt, QDir
@@ -15,6 +15,9 @@ from logic.config_handler import load_config, update_config, save_config
 from logic.excel_rules import load_rules_from_excel
 from logic.converter import convert_single_file, batch_convert
 from logic.file_handler import validate_filename_settings
+from logic.logger import setup_logger, get_logger, log_config_change
+from logic.validation import comprehensive_validation
+from progress_dialog import ProgressDialog
 
 
 class CNCConverterUI(QMainWindow):
@@ -22,6 +25,11 @@ class CNCConverterUI(QMainWindow):
         super().__init__()
         self.setWindowTitle("CNC-Konverter")
         self.setGeometry(200, 200, 1400, 800)
+
+        # Logging initialisieren
+        setup_logger()
+        self.logger = get_logger()
+        self.logger.info("=== CNC-Konverter gestartet ===")
 
         # Config laden
         self.config = load_config()
@@ -103,7 +111,7 @@ class CNCConverterUI(QMainWindow):
         
         self.src_dir_field = QPushButton()  # Button statt LineEdit
         self.src_dir_field.setText(self.config.get("source_dir", "Pfad zum Quellverzeichnis auswählen..."))
-        self.src_dir_field.setStyleSheet("QPushButton { text-align: left; padding: 5px; background-color: #f0f0f0; }")
+       
         self.src_dir_field.clicked.connect(lambda: self.select_directory_via_field("source"))
         
         self.src_open_btn = QPushButton("Q-File-öffnen")
@@ -160,7 +168,7 @@ class CNCConverterUI(QMainWindow):
         
         self.conv_dir_field = QPushButton()  # Button statt LineEdit
         self.conv_dir_field.setText(self.config.get("converter_dir", "Pfad zum Konverter-Verzeichnis auswählen..."))
-        self.conv_dir_field.setStyleSheet("QPushButton { text-align: left; padding: 5px; background-color: #f0f0f0; }")
+        
         self.conv_dir_field.clicked.connect(lambda: self.select_directory_via_field("converter"))
         
         self.conv_open_btn = QPushButton("Excel-öffnen")
@@ -208,7 +216,7 @@ class CNCConverterUI(QMainWindow):
         
         self.dst_dir_field = QPushButton()  # Button statt LineEdit
         self.dst_dir_field.setText(self.config.get("target_dir", "Pfad zum Zielverzeichnis auswählen..."))
-        self.dst_dir_field.setStyleSheet("QPushButton { text-align: left; padding: 5px; background-color: #f0f0f0; }")
+        
         self.dst_dir_field.clicked.connect(lambda: self.select_directory_via_field("target"))
         
         self.dst_open_btn = QPushButton("Z-File-öffnen")
@@ -297,7 +305,7 @@ class CNCConverterUI(QMainWindow):
 
     # ----------------- Neue Methoden für Pfad-Auswahl und Datei-Öffnung -----------------
     def select_directory_via_field(self, section: str):
-        """Öffnet den Dateidialog zur Pfad-Auswahl."""
+        """Öffnet den Dateidialog zur Pfad-Auswahl mit Validierung."""
         current_path = ""
         if section == "source":
             current_path = self.config.get("source_dir", "")
@@ -312,9 +320,20 @@ class CNCConverterUI(QMainWindow):
         )
         
         if directory:
+            # Zusätzliche Validierung für Zielverzeichnis
+            if section == "target":
+                source_dir = self.config.get("source_dir", "")
+                if source_dir and os.path.samefile(directory, source_dir):
+                    QMessageBox.warning(
+                        self, "Ungültiges Verzeichnis", 
+                        "Ziel- und Quellverzeichnis dürfen nicht identisch sein."
+                    )
+                    return
+            
             # Button-Text und Config aktualisieren
             if section == "source":
                 self.src_dir_field.setText(directory)
+                log_config_change("source_dir", self.config.get("source_dir"), directory)
                 update_config("source_dir", directory)
                 model = self.src_tree.model()
                 self.src_tree.setRootIndex(model.index(directory))
@@ -334,6 +353,8 @@ class CNCConverterUI(QMainWindow):
                 self.dst_tree.setRootIndex(model.index(directory))
                 self.dst_list.setRootIndex(model.index(directory))
                 self.current_target_listview_path = directory
+
+        self.logger.info(f"Verzeichnis ausgewählt ({section}): {directory}")
 
     def open_file_in_editor(self, section: str):
         """Öffnet die entsprechende Datei im passenden Editor."""
@@ -450,7 +471,9 @@ class CNCConverterUI(QMainWindow):
                 self.endings_z[i].setText(file_endings[i].get("target", ""))
 
     def _save_prefix_settings(self):
-        """Speichert die aktuellen Präfix-Einstellungen in die Config."""
+        """Speichert die aktuellen Präfix-Einstellungen in die Config mit Logging."""
+        old_config = self.config.copy()
+        
         config_updates = {
             "source_prefix_count": int(self.src_prefix_count.currentText()),
             "source_prefix_specific": self.chk_src_spec.isChecked(),
@@ -460,24 +483,35 @@ class CNCConverterUI(QMainWindow):
             "target_prefix_string": self.dst_prefix_str.text()
         }
         
-        # Config aktualisieren
+        # Config aktualisieren mit Logging
         for key, value in config_updates.items():
+            old_value = self.config.get(key)
+            if old_value != value:
+                log_config_change(key, old_value, value)
             self.config[key] = value
             
         save_config(self.config)
 
     def _save_ending_settings(self):
-        """Speichert die aktuellen Dateiendungs-Einstellungen in die Config."""
-        file_endings = []
-        for i in range(3):
-            source_end = self.endings_q[i].text().strip()
-            target_end = self.endings_z[i].text().strip()
-            file_endings.append({
-                "source": source_end,
-                "target": target_end
-            })
+        """Speichert die aktuellen Präfix-Einstellungen in die Config mit Logging."""
+        old_config = self.config.copy()
         
-        self.config["file_endings"] = file_endings
+        config_updates = {
+            "source_prefix_count": int(self.src_prefix_count.currentText()),
+            "source_prefix_specific": self.chk_src_spec.isChecked(),
+            "source_prefix_string": self.src_prefix_str.text(),
+            "target_prefix_count": int(self.dst_prefix_count.currentText()),
+            "target_prefix_specific": self.chk_dst_spec.isChecked(),
+            "target_prefix_string": self.dst_prefix_str.text()
+        }
+        
+        # Config aktualisieren mit Logging
+        for key, value in config_updates.items():
+            old_value = self.config.get(key)
+            if old_value != value:
+                log_config_change(key, old_value, value)
+            self.config[key] = value
+            
         save_config(self.config)
 
     # ----------------- Batch Umschalter -----------------
@@ -521,124 +555,148 @@ class CNCConverterUI(QMainWindow):
             update_config(section + "_dir", directory)
 
     def _validate_settings(self) -> tuple[bool, list[str]]:
-        """Validiert alle Einstellungen und gibt OK-Status und Fehlerliste zurück."""
-        errors = []
-        
-        # Verzeichnisse prüfen
-        source_dir = self.config.get("source_dir", "")
-        target_dir = self.config.get("target_dir", "")
-        excel_path = self.config.get("excel_path", "")
-        
-        # Bei Batch-Modus: ListView-Pfad verwenden
-        if self.chk_convert_all.isChecked() and self.current_source_listview_path:
-            source_dir = self.current_source_listview_path
-        
-        if not os.path.isdir(source_dir):
-            errors.append("Quellverzeichnis ist ungültig oder existiert nicht.")
-        if not os.path.isdir(target_dir):
-            errors.append("Zielverzeichnis ist ungültig oder existiert nicht.")
-        if source_dir == target_dir:
-            errors.append("Quell- und Zielverzeichnis müssen unterschiedlich sein.")
-        if not os.path.isfile(excel_path):
-            errors.append("Keine gültige Excel-Konverterdatei ausgewählt.")
-        
-        # Einzeldatei-Modus prüfen
-        if not self.chk_convert_all.isChecked():
-            active_src = self.config.get("active_source_file", "")
-            if not active_src or not os.path.isfile(active_src):
-                errors.append("Für Einzeldatei-Konvertierung muss ein Quellfile ausgewählt sein.")
-        
-        # Dateinamen-Einstellungen validieren
-        file_endings = []
-        for i in range(3):
-            source_end = self.endings_q[i].text().strip()
-            target_end = self.endings_z[i].text().strip()
-            if source_end or target_end:  # Nur validieren wenn nicht leer
-                file_endings.append({"source": source_end, "target": target_end})
-        
-        filename_errors = validate_filename_settings(
-            int(self.src_prefix_count.currentText()),
-            self.src_prefix_str.text(),
-            int(self.dst_prefix_count.currentText()), 
-            self.dst_prefix_str.text(),
-            file_endings
-        )
-        errors.extend(filename_errors)
-        
-        return len(errors) == 0, errors
+        """Validiert alle Einstellungen mit umfassendem Validation-Modul."""
+        try:
+            # Bei Batch-Modus: ListView-Pfad als source_dir verwenden
+            config_copy = self.config.copy()
+            if self.chk_convert_all.isChecked() and self.current_source_listview_path:
+                config_copy["source_dir"] = self.current_source_listview_path
+            
+            batch_mode = self.chk_convert_all.isChecked()
+            is_valid, errors = comprehensive_validation(config_copy, batch_mode)
+            
+            return is_valid, errors
+            
+        except Exception as e:
+            self.logger.error(f"Validierungsfehler: {str(e)}")
+            return False, [f"Unerwarteter Validierungsfehler: {str(e)}"]
 
     def start_conversion(self):
+        """Startet die Konvertierung mit Progress-Dialog."""
         try:
+            self.logger.info("Konvertierung angefordert vom Benutzer")
+            
             # Einstellungen validieren
             is_valid, errors = self._validate_settings()
             if not is_valid:
                 error_text = "\n• ".join(["Folgende Fehler müssen behoben werden:"] + errors)
                 QMessageBox.critical(self, "Validierungsfehler", error_text)
+                self.logger.warning(f"Validierung fehlgeschlagen: {len(errors)} Fehler")
                 return
 
-            # Parameter sammeln
-            target_dir = self.config.get("target_dir", "")
-            excel_path = self.config["excel_path"]
+            # Parameter für Konvertierung sammeln
+            conversion_params = self._gather_conversion_parameters()
             
-            # Bei Batch-Modus: ListView-Pfad als Quellverzeichnis verwenden
+            # Progress-Dialog erstellen und anzeigen
+            title = "Batch-Konvertierung läuft..." if self.chk_convert_all.isChecked() else "Datei wird konvertiert..."
+            progress_dialog = ProgressDialog(self, title)
+            
+            # Konvertierung im Progress-Dialog starten
             if self.chk_convert_all.isChecked():
-                source_dir = self.current_source_listview_path or self.config.get("source_dir", "")
+                progress_dialog.start_conversion(self._run_batch_conversion, **conversion_params)
             else:
-                source_dir = self.config.get("source_dir", "")
+                progress_dialog.start_conversion(self._run_single_conversion, **conversion_params)
             
-            # Präfix-Parameter
-            source_prefix_count = int(self.src_prefix_count.currentText())
-            source_prefix_specific = self.chk_src_spec.isChecked()
-            source_prefix_string = self.src_prefix_str.text()
-            target_prefix_count = int(self.dst_prefix_count.currentText())
-            target_prefix_specific = self.chk_dst_spec.isChecked()
-            target_prefix_string = self.dst_prefix_str.text()
+            # Dialog anzeigen (modal)
+            result = progress_dialog.exec()
             
-            # Dateiendungen-Parameter
-            file_endings = []
-            for i in range(3):
-                source_end = self.endings_q[i].text().strip()
-                target_end = self.endings_z[i].text().strip()
-                if source_end or target_end:
-                    file_endings.append({"source": source_end, "target": target_end})
-
-            # Excel-Regeln laden
-            rules = load_rules_from_excel(excel_path)
-
-            # Konvertierung starten
-            if self.chk_convert_all.isChecked():
-                batch_convert(
-                    source_dir, target_dir, rules,
-                    source_prefix_count=source_prefix_count,
-                    source_prefix_specific=source_prefix_specific,
-                    source_prefix_string=source_prefix_string,
-                    target_prefix_count=target_prefix_count,
-                    target_prefix_specific=target_prefix_specific,
-                    target_prefix_string=target_prefix_string,
-                    file_endings=file_endings
-                )
-                QMessageBox.information(self, "Batch-Konvertierung", "Alle Dateien erfolgreich konvertiert!")
-            else:
-                active_src = self.config["active_source_file"]
-                result_path = convert_single_file(
-                    active_src, target_dir, rules,
-                    source_prefix_count=source_prefix_count,
-                    source_prefix_specific=source_prefix_specific,
-                    source_prefix_string=source_prefix_string,
-                    target_prefix_count=target_prefix_count,
-                    target_prefix_specific=target_prefix_specific,
-                    target_prefix_string=target_prefix_string,
-                    file_endings=file_endings
-                )
-                result_name = os.path.basename(result_path)
-                self.last_converted_file = result_path  # Letztes konvertiertes File speichern
-                QMessageBox.information(self, "Erfolg", f"Datei erfolgreich konvertiert:\n{result_name}")
-
-            # Ziel-View aktualisieren
-            self._refresh_target_view()
-
+            # Nach Abschluss: Ziel-View aktualisieren
+            if result == QDialog.DialogCode.Accepted:
+                self._refresh_target_view()
+                
         except Exception as e:
-            QMessageBox.critical(self, "Konvertierungsfehler", f"Fehler während der Konvertierung:\n{str(e)}")
+            error_msg = f"Unerwarteter Fehler beim Starten der Konvertierung: {str(e)}"
+            self.logger.error(error_msg)
+            QMessageBox.critical(self, "Fehler", error_msg)
+
+    def _gather_conversion_parameters(self) -> dict:
+        """Sammelt alle Parameter für die Konvertierung."""
+        target_dir = self.config.get("target_dir", "")
+        excel_path = self.config["excel_path"]
+        
+        # Bei Batch-Modus: ListView-Pfad als Quellverzeichnis verwenden
+        if self.chk_convert_all.isChecked():
+            source_dir = self.current_source_listview_path or self.config.get("source_dir", "")
+        else:
+            source_dir = self.config.get("source_dir", "")
+        
+        # Dateiendungen-Parameter
+        file_endings = []
+        for i in range(3):
+            source_end = self.endings_q[i].text().strip()
+            target_end = self.endings_z[i].text().strip()
+            if source_end or target_end:
+                file_endings.append({"source": source_end, "target": target_end})
+
+        return {
+            'source_dir': source_dir,
+            'target_dir': target_dir,
+            'excel_path': excel_path,
+            'source_prefix_count': int(self.src_prefix_count.currentText()),
+            'source_prefix_specific': self.chk_src_spec.isChecked(),
+            'source_prefix_string': self.src_prefix_str.text(),
+            'target_prefix_count': int(self.dst_prefix_count.currentText()),
+            'target_prefix_specific': self.chk_dst_spec.isChecked(),
+            'target_prefix_string': self.dst_prefix_str.text(),
+            'file_endings': file_endings,
+            'active_source_file': self.config.get("active_source_file", "")
+        }
+
+    def _run_batch_conversion(self, source_dir, target_dir, excel_path, 
+                            source_prefix_count, source_prefix_specific, source_prefix_string,
+                            target_prefix_count, target_prefix_specific, target_prefix_string,
+                            file_endings, progress_callback=None, cancel_check=None, **kwargs):
+        """Führt Batch-Konvertierung aus."""
+        from logic.excel_rules import load_rules_from_excel
+        from logic.converter import batch_convert
+        
+        # Excel-Regeln laden
+        rules = load_rules_from_excel(excel_path)
+        self.logger.info(f"Excel-Regeln geladen: {len(rules)} Einträge")
+        
+        # Batch-Konvertierung starten
+        return batch_convert(
+            source_dir, target_dir, rules,
+            source_prefix_count=source_prefix_count,
+            source_prefix_specific=source_prefix_specific,
+            source_prefix_string=source_prefix_string,
+            target_prefix_count=target_prefix_count,
+            target_prefix_specific=target_prefix_specific,
+            target_prefix_string=target_prefix_string,
+            file_endings=file_endings,
+            progress_callback=progress_callback,
+            cancel_check=cancel_check
+        )
+
+    def _run_single_conversion(self, target_dir, excel_path, active_source_file,
+                             source_prefix_count, source_prefix_specific, source_prefix_string,
+                             target_prefix_count, target_prefix_specific, target_prefix_string,
+                             file_endings, progress_callback=None, cancel_check=None, **kwargs):
+        """Führt Einzeldatei-Konvertierung aus."""
+        from logic.excel_rules import load_rules_from_excel
+        from logic.converter import convert_single_file
+        
+        # Excel-Regeln laden
+        rules = load_rules_from_excel(excel_path)
+        self.logger.info(f"Excel-Regeln geladen: {len(rules)} Einträge")
+        
+        # Einzeldatei-Konvertierung
+        result_path = convert_single_file(
+            active_source_file, target_dir, rules,
+            source_prefix_count=source_prefix_count,
+            source_prefix_specific=source_prefix_specific,
+            source_prefix_string=source_prefix_string,
+            target_prefix_count=target_prefix_count,
+            target_prefix_specific=target_prefix_specific,
+            target_prefix_string=target_prefix_string,
+            file_endings=file_endings,
+            progress_callback=progress_callback,
+            cancel_check=cancel_check
+        )
+        
+        self.last_converted_file = result_path
+        return {'success': 1, 'failed': 0, 'total': 1}
+
 
     def _refresh_target_view(self):
         """Aktualisiert die Ziel-Verzeichnis-Ansicht."""
@@ -649,6 +707,11 @@ class CNCConverterUI(QMainWindow):
             model.setRootPath(path)
             self.dst_tree.setRootIndex(model.index(path))
             self.dst_list.setRootIndex(model.index(path))
+    
+    def closeEvent(self, event):
+        """Behandelt das Schließen der Anwendung."""
+        self.logger.info("=== CNC-Konverter beendet ===")
+        event.accept()
 
 
 if __name__ == "__main__":
