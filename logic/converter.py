@@ -50,7 +50,8 @@ def batch_convert(source_dir: str, target_dir: str, rules: dict,
                   target_prefix_string: str = "",
                   file_endings: list = None):
     """
-    Konvertiert alle Dateien im Quellordner (egal welche Endung) und speichert sie im Zielordner.
+    Konvertiert alle Dateien im Quellordner (nur im aktuellen Ordner, NICHT in Unterordnern) 
+    und speichert sie im Zielordner.
     """
     if file_endings is None:
         file_endings = []
@@ -60,12 +61,23 @@ def batch_convert(source_dir: str, target_dir: str, rules: dict,
     if not os.path.exists(target_dir):
         os.makedirs(target_dir, exist_ok=True)
 
-    files = [f for f in os.listdir(source_dir) if os.path.isfile(os.path.join(source_dir, f))]
+    # Nur Dateien im aktuellen Ordner, KEINE Unterordner
+    files = []
+    try:
+        for item in os.listdir(source_dir):
+            item_path = os.path.join(source_dir, item)
+            # Nur Dateien hinzufügen, keine Ordner
+            if os.path.isfile(item_path):
+                files.append(item)
+    except Exception as e:
+        raise Exception(f"Fehler beim Lesen des Quellordners: {e}")
+    
     if not files:
         print("⚠ Keine Dateien im Quellordner gefunden.")
         return
 
     print(f"🔄 Starte Batch-Konvertierung: {len(files)} Dateien aus '{source_dir}' -> '{target_dir}'")
+    print(f"📁 Nur Dateien im aktuellen Ordner werden konvertiert (keine Unterordner).")
 
     success, failed = 0, 0
     for f in files:

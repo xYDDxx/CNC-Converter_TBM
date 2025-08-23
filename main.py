@@ -1,5 +1,7 @@
 import sys
 import os
+import subprocess
+import platform
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QLabel, QPushButton, QListView,
     QComboBox, QLineEdit, QCheckBox, QGridLayout, QHBoxLayout, QVBoxLayout,
@@ -23,6 +25,12 @@ class CNCConverterUI(QMainWindow):
 
         # Config laden
         self.config = load_config()
+        
+        # Aktueller Pfad für ListViews speichern
+        self.current_source_listview_path = ""
+        self.current_target_listview_path = ""
+        self.current_converter_listview_path = ""
+        self.last_converted_file = ""
         
         # Haupt-Widget
         central_widget = QWidget()
@@ -90,17 +98,22 @@ class CNCConverterUI(QMainWindow):
     def add_source_section(self, grid, col_start):
         grid.addWidget(QLabel("Quellverzeichnis"), 0, col_start, 1, 2)
 
-        self.src_dir_field = QLineEdit(self.config.get("source_dir", ""))
-        self.src_dir_field.setPlaceholderText("Pfad zum Quellverzeichnis...")
-        self.src_dir_field.textChanged.connect(lambda: update_config("source_dir", self.src_dir_field.text()))
-        self.src_dir_btn = QPushButton("Durchsuchen")
-        self.src_dir_btn.clicked.connect(
-            lambda: self.select_directory(
-                self.src_dir_field, self.src_tree, self.src_list, section="source"
-            )
-        )
-        grid.addWidget(self.src_dir_field, 1, col_start)
-        grid.addWidget(self.src_dir_btn, 1, col_start + 1)
+        # Layout für Pfad-Feld und Button
+        path_layout = QHBoxLayout()
+        
+        self.src_dir_field = QPushButton()  # Button statt LineEdit
+        self.src_dir_field.setText(self.config.get("source_dir", "Pfad zum Quellverzeichnis auswählen..."))
+        self.src_dir_field.setStyleSheet("QPushButton { text-align: left; padding: 5px; background-color: #f0f0f0; }")
+        self.src_dir_field.clicked.connect(lambda: self.select_directory_via_field("source"))
+        
+        self.src_open_btn = QPushButton("Q-File-öffnen")
+        self.src_open_btn.clicked.connect(lambda: self.open_file_in_editor("source"))
+        self.src_open_btn.setFixedWidth(self.src_open_btn.sizeHint().width())
+        
+        path_layout.addWidget(self.src_dir_field)
+        path_layout.addWidget(self.src_open_btn)
+        
+        grid.addLayout(path_layout, 1, col_start, 1, 2)
 
         self.src_tree, self.src_list = self.create_explorer(section="source")
         pair_layout = QHBoxLayout()
@@ -142,17 +155,22 @@ class CNCConverterUI(QMainWindow):
     def add_converter_section(self, grid, col_start):
         grid.addWidget(QLabel("Konverter-Verzeichnis"), 0, col_start, 1, 2)
 
-        self.conv_dir_field = QLineEdit(self.config.get("converter_dir", ""))
-        self.conv_dir_field.setPlaceholderText("Pfad zum Konverter-Verzeichnis...")
-        self.conv_dir_field.textChanged.connect(lambda: update_config("converter_dir", self.conv_dir_field.text()))
-        self.conv_dir_btn = QPushButton("Durchsuchen")
-        self.conv_dir_btn.clicked.connect(
-            lambda: self.select_directory(
-                self.conv_dir_field, self.conv_tree, self.conv_list, section="converter"
-            )
-        )
-        grid.addWidget(self.conv_dir_field, 1, col_start)
-        grid.addWidget(self.conv_dir_btn, 1, col_start + 1)
+        # Layout für Pfad-Feld und Button
+        path_layout = QHBoxLayout()
+        
+        self.conv_dir_field = QPushButton()  # Button statt LineEdit
+        self.conv_dir_field.setText(self.config.get("converter_dir", "Pfad zum Konverter-Verzeichnis auswählen..."))
+        self.conv_dir_field.setStyleSheet("QPushButton { text-align: left; padding: 5px; background-color: #f0f0f0; }")
+        self.conv_dir_field.clicked.connect(lambda: self.select_directory_via_field("converter"))
+        
+        self.conv_open_btn = QPushButton("Excel-öffnen")
+        self.conv_open_btn.clicked.connect(lambda: self.open_file_in_editor("converter"))
+        self.conv_open_btn.setFixedWidth(self.conv_open_btn.sizeHint().width())
+        
+        path_layout.addWidget(self.conv_dir_field)
+        path_layout.addWidget(self.conv_open_btn)
+        
+        grid.addLayout(path_layout, 1, col_start, 1, 2)
 
         self.conv_tree, self.conv_list = self.create_explorer(section="converter")
         pair_layout = QHBoxLayout()
@@ -185,17 +203,22 @@ class CNCConverterUI(QMainWindow):
     def add_target_section(self, grid, col_start):
         grid.addWidget(QLabel("Zielverzeichnis"), 0, col_start, 1, 2)
 
-        self.dst_dir_field = QLineEdit(self.config.get("target_dir", ""))
-        self.dst_dir_field.setPlaceholderText("Pfad zum Zielverzeichnis...")
-        self.dst_dir_field.textChanged.connect(lambda: update_config("target_dir", self.dst_dir_field.text()))
-        self.dst_dir_btn = QPushButton("Durchsuchen")
-        self.dst_dir_btn.clicked.connect(
-            lambda: self.select_directory(
-                self.dst_dir_field, self.dst_tree, self.dst_list, section="target"
-            )
-        )
-        grid.addWidget(self.dst_dir_field, 1, col_start)
-        grid.addWidget(self.dst_dir_btn, 1, col_start + 1)
+        # Layout für Pfad-Feld und Button
+        path_layout = QHBoxLayout()
+        
+        self.dst_dir_field = QPushButton()  # Button statt LineEdit
+        self.dst_dir_field.setText(self.config.get("target_dir", "Pfad zum Zielverzeichnis auswählen..."))
+        self.dst_dir_field.setStyleSheet("QPushButton { text-align: left; padding: 5px; background-color: #f0f0f0; }")
+        self.dst_dir_field.clicked.connect(lambda: self.select_directory_via_field("target"))
+        
+        self.dst_open_btn = QPushButton("Z-File-öffnen")
+        self.dst_open_btn.clicked.connect(lambda: self.open_file_in_editor("target"))
+        self.dst_open_btn.setFixedWidth(self.dst_open_btn.sizeHint().width())
+        
+        path_layout.addWidget(self.dst_dir_field)
+        path_layout.addWidget(self.dst_open_btn)
+        
+        grid.addLayout(path_layout, 1, col_start, 1, 2)
 
         self.dst_tree, self.dst_list = self.create_explorer(section="target")
         pair_layout = QHBoxLayout()
@@ -241,6 +264,13 @@ class CNCConverterUI(QMainWindow):
             path = model.filePath(index)
             if os.path.isdir(path):
                 list_view.setRootIndex(model.index(path))
+                # Aktuellen ListView-Pfad speichern
+                if section == "source":
+                    self.current_source_listview_path = path
+                elif section == "converter":
+                    self.current_converter_listview_path = path
+                elif section == "target":
+                    self.current_target_listview_path = path
 
         tree.clicked.connect(on_tree_clicked)
 
@@ -265,9 +295,138 @@ class CNCConverterUI(QMainWindow):
         list_view.doubleClicked.connect(on_list_double_clicked)
         return tree, list_view
 
+    # ----------------- Neue Methoden für Pfad-Auswahl und Datei-Öffnung -----------------
+    def select_directory_via_field(self, section: str):
+        """Öffnet den Dateidialog zur Pfad-Auswahl."""
+        current_path = ""
+        if section == "source":
+            current_path = self.config.get("source_dir", "")
+        elif section == "converter":
+            current_path = self.config.get("converter_dir", "")
+        elif section == "target":
+            current_path = self.config.get("target_dir", "")
+        
+        directory = QFileDialog.getExistingDirectory(
+            self, "Verzeichnis auswählen",
+            current_path or QDir.homePath()
+        )
+        
+        if directory:
+            # Button-Text und Config aktualisieren
+            if section == "source":
+                self.src_dir_field.setText(directory)
+                update_config("source_dir", directory)
+                model = self.src_tree.model()
+                self.src_tree.setRootIndex(model.index(directory))
+                self.src_list.setRootIndex(model.index(directory))
+                self.current_source_listview_path = directory
+            elif section == "converter":
+                self.conv_dir_field.setText(directory)
+                update_config("converter_dir", directory)
+                model = self.conv_tree.model()
+                self.conv_tree.setRootIndex(model.index(directory))
+                self.conv_list.setRootIndex(model.index(directory))
+                self.current_converter_listview_path = directory
+            elif section == "target":
+                self.dst_dir_field.setText(directory)
+                update_config("target_dir", directory)
+                model = self.dst_tree.model()
+                self.dst_tree.setRootIndex(model.index(directory))
+                self.dst_list.setRootIndex(model.index(directory))
+                self.current_target_listview_path = directory
+
+    def open_file_in_editor(self, section: str):
+        """Öffnet die entsprechende Datei im passenden Editor."""
+        file_path = ""
+        
+        if section == "source":
+            # Ausgewählte Quelldatei öffnen
+            active_src = self.config.get("active_source_file", "")
+            if active_src and os.path.isfile(active_src):
+                file_path = active_src
+            else:
+                QMessageBox.information(self, "Hinweis", "Keine Quelldatei ausgewählt.")
+                return
+            self._open_in_text_editor(file_path)
+                
+        elif section == "converter":
+            # Excel-Datei öffnen
+            excel_path = self.config.get("excel_path", "")
+            if excel_path and os.path.isfile(excel_path):
+                file_path = excel_path
+            else:
+                QMessageBox.information(self, "Hinweis", "Keine Excel-Datei ausgewählt.")
+                return
+            self._open_in_excel(file_path)
+                
+        elif section == "target":
+            # Zuerst prüfen ob im ListView eine Datei ausgewählt ist
+            selected_indexes = self.dst_list.selectedIndexes()
+            if selected_indexes:
+                model = self.dst_list.model()
+                selected_path = model.filePath(selected_indexes[0])
+                if os.path.isfile(selected_path):
+                    file_path = selected_path
+            
+            # Falls keine ListView-Auswahl, dann letztes konvertiertes File
+            if not file_path and self.last_converted_file and os.path.isfile(self.last_converted_file):
+                file_path = self.last_converted_file
+            
+            if file_path:
+                self._open_in_text_editor(file_path)
+            else:
+                QMessageBox.information(self, "Hinweis", "Keine Zieldatei verfügbar.")
+
+    def _open_in_text_editor(self, file_path: str):
+        """Öffnet Datei in Notepad++ oder anderem Texteditor."""
+        try:
+            system = platform.system()
+            if system == "Windows":
+                # Erst Notepad++ versuchen
+                notepad_paths = [
+                    r"C:\Program Files\Notepad++\notepad++.exe",
+                    r"C:\Program Files (x86)\Notepad++\notepad++.exe"
+                ]
+                
+                for npp_path in notepad_paths:
+                    if os.path.exists(npp_path):
+                        subprocess.run([npp_path, file_path], check=False)
+                        return
+                
+                # Fallback: Windows Notepad
+                subprocess.run(["notepad.exe", file_path], check=False)
+            else:
+                # Linux/Mac: Standard-Texteditor verwenden
+                if system == "Darwin":  # macOS
+                    subprocess.run(["open", "-t", file_path], check=False)
+                else:  # Linux
+                    subprocess.run(["xdg-open", file_path], check=False)
+                    
+        except Exception as e:
+            QMessageBox.warning(self, "Fehler", f"Datei konnte nicht geöffnet werden:\n{str(e)}")
+
+    def _open_in_excel(self, file_path: str):
+        """Öffnet Excel-Datei in Excel oder LibreOffice."""
+        try:
+            system = platform.system()
+            if system == "Windows":
+                os.startfile(file_path)  # Windows: Standard-Programm verwenden
+            elif system == "Darwin":  # macOS
+                subprocess.run(["open", file_path], check=False)
+            else:  # Linux
+                subprocess.run(["xdg-open", file_path], check=False)
+                
+        except Exception as e:
+            QMessageBox.warning(self, "Fehler", f"Excel-Datei konnte nicht geöffnet werden:\n{str(e)}")
+
     # ----------------- Config Management -----------------
     def _load_config_to_ui(self):
         """Lädt die gespeicherte Konfiguration in die UI-Elemente."""
+        # Button-Texte setzen
+        self.src_dir_field.setText(self.config.get("source_dir", "Pfad zum Quellverzeichnis auswählen..."))
+        self.conv_dir_field.setText(self.config.get("converter_dir", "Pfad zum Konverter-Verzeichnis auswählen..."))
+        self.dst_dir_field.setText(self.config.get("target_dir", "Pfad zum Zielverzeichnis auswählen..."))
+        
         # Aktive Dateien anzeigen
         if self.config.get("active_source_file"):
             self.active_src_file.setText(os.path.basename(self.config["active_source_file"]))
@@ -337,17 +496,17 @@ class CNCConverterUI(QMainWindow):
 
     # ----------------- Backend Hooks -----------------
     def _apply_initial_paths_to_views(self):
-        for field, tree, lst in [
-            (self.src_dir_field, self.src_tree, self.src_list),
-            (self.conv_dir_field, self.conv_tree, self.conv_list),
-            (self.dst_dir_field, self.dst_tree, self.dst_list)
+        for config_key, tree, lst, attr in [
+            ("source_dir", self.src_tree, self.src_list, "current_source_listview_path"),
+            ("converter_dir", self.conv_tree, self.conv_list, "current_converter_listview_path"),
+            ("target_dir", self.dst_tree, self.dst_list, "current_target_listview_path")
         ]:
-            if field.text().strip():
+            path = self.config.get(config_key, "")
+            if path and os.path.exists(path):
                 model = tree.model()
-                p = field.text().strip()
-                if os.path.exists(p):
-                    tree.setRootIndex(model.index(p))
-                    lst.setRootIndex(model.index(p))
+                tree.setRootIndex(model.index(path))
+                lst.setRootIndex(model.index(path))
+                setattr(self, attr, path)
 
     def select_directory(self, path_field, tree_view, list_view, section: str):
         directory = QFileDialog.getExistingDirectory(
@@ -366,9 +525,13 @@ class CNCConverterUI(QMainWindow):
         errors = []
         
         # Verzeichnisse prüfen
-        source_dir = self.src_dir_field.text().strip()
-        target_dir = self.dst_dir_field.text().strip()
+        source_dir = self.config.get("source_dir", "")
+        target_dir = self.config.get("target_dir", "")
         excel_path = self.config.get("excel_path", "")
+        
+        # Bei Batch-Modus: ListView-Pfad verwenden
+        if self.chk_convert_all.isChecked() and self.current_source_listview_path:
+            source_dir = self.current_source_listview_path
         
         if not os.path.isdir(source_dir):
             errors.append("Quellverzeichnis ist ungültig oder existiert nicht.")
@@ -414,9 +577,14 @@ class CNCConverterUI(QMainWindow):
                 return
 
             # Parameter sammeln
-            source_dir = self.src_dir_field.text().strip()
-            target_dir = self.dst_dir_field.text().strip()
+            target_dir = self.config.get("target_dir", "")
             excel_path = self.config["excel_path"]
+            
+            # Bei Batch-Modus: ListView-Pfad als Quellverzeichnis verwenden
+            if self.chk_convert_all.isChecked():
+                source_dir = self.current_source_listview_path or self.config.get("source_dir", "")
+            else:
+                source_dir = self.config.get("source_dir", "")
             
             # Präfix-Parameter
             source_prefix_count = int(self.src_prefix_count.currentText())
@@ -463,6 +631,7 @@ class CNCConverterUI(QMainWindow):
                     file_endings=file_endings
                 )
                 result_name = os.path.basename(result_path)
+                self.last_converted_file = result_path  # Letztes konvertiertes File speichern
                 QMessageBox.information(self, "Erfolg", f"Datei erfolgreich konvertiert:\n{result_name}")
 
             # Ziel-View aktualisieren
@@ -474,7 +643,7 @@ class CNCConverterUI(QMainWindow):
     def _refresh_target_view(self):
         """Aktualisiert die Ziel-Verzeichnis-Ansicht."""
         model = self.dst_tree.model()
-        path = self.dst_dir_field.text().strip()
+        path = self.config.get("target_dir", "")
         if path and os.path.isdir(path):
             # Model refresh erzwingen
             model.setRootPath(path)
