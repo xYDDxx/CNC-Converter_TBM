@@ -9,7 +9,7 @@ import time
 from typing import Callable, Optional
 
 class ConversionWorker(QThread):
-    """Worker-Thread für die Konvertierung."""
+    """Worker-Thread für die asynchrone Konvertierung im Hintergrund."""
     progress_updated = pyqtSignal(int, str, str)  # progress, current_file, status
     conversion_finished = pyqtSignal(bool, str, dict)  # success, message, stats
     error_occurred = pyqtSignal(str, str)  # file, error_msg
@@ -28,17 +28,17 @@ class ConversionWorker(QThread):
             self.kwargs['progress_callback'] = self.update_progress
             self.kwargs['cancel_check'] = lambda: self.cancelled
             
-            # Konvertierung ausführen
+            # Konvertierung mit den übergebenen Parametern ausführen
             result = self.conversion_func(*self.args, **self.kwargs)
             
             if not self.cancelled:
                 if isinstance(result, dict):
-                    # Batch-Konvertierung
+                    # Batch-Konvertierung: Ergebnis mit Statistiken
                     success = result.get('success', 0) > 0
                     message = f"Konvertierung abgeschlossen: {result.get('success', 0)} erfolgreich, {result.get('failed', 0)} fehlgeschlagen"
                     self.conversion_finished.emit(success, message, result)
                 else:
-                    # Einzeldatei-Konvertierung
+                    # Einzeldatei-Konvertierung: Erfolg annehmen
                     self.conversion_finished.emit(True, "Datei erfolgreich konvertiert", {'success': 1, 'failed': 0})
                     
         except Exception as e:
@@ -46,18 +46,18 @@ class ConversionWorker(QThread):
                 self.conversion_finished.emit(False, f"Unerwarteter Fehler: {str(e)}", {'success': 0, 'failed': 1})
     
     def update_progress(self, current: int, total: int, current_file: str = "", status: str = ""):
-        """Callback für Progress-Updates."""
+        """Callback für Progress-Updates von der Konvertierungsfunktion."""
         if not self.cancelled:
             progress = int((current / max(total, 1)) * 100)
             self.progress_updated.emit(progress, current_file, status)
     
     def cancel(self):
-        """Bricht die Konvertierung ab."""
+        """Bricht die laufende Konvertierung ab."""
         self.cancelled = True
 
 
 class ProgressDialog(QDialog):
-    """Dialog für Fortschrittsanzeige mit Abbruch-Möglichkeit."""
+    """Dialog für Fortschrittsanzeige mit Abbruch-Möglichkeit und detaillierten Informationen."""
     
     def __init__(self, parent=None, title="Konvertierung läuft..."):
         super().__init__(parent)
@@ -70,16 +70,16 @@ class ProgressDialog(QDialog):
         self.start_time = time.time()
         self.setup_ui()
         
-        # Timer für Zeitmessung
+        # Timer für kontinuierliche Zeitmessung
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_time)
-        self.timer.start(1000)  # Jede Sekunde
+        self.timer.start(1000)  # Jede Sekunde aktualisieren
         
     def setup_ui(self):
-        """Erstellt die UI-Elemente."""
+        """Erstellt alle UI-Elemente des Progress-Dialogs."""
         layout = QVBoxLayout()
         
-        # Titel
+        # Titel mit größerer Schrift
         title_font = QFont()
         title_font.setBold(True)
         title_font.setPointSize(10)
@@ -96,11 +96,12 @@ class ProgressDialog(QDialog):
         self.progress_bar.setValue(0)
         layout.addWidget(self.progress_bar)
         
-        # Status-Informationen
+        # Informationsbereich mit Rahmen
         info_frame = QFrame()
         info_frame.setFrameStyle(QFrame.Shape.StyledPanel)
         info_layout = QVBoxLayout()
         
+        # Status-Informationen
         self.current_file_label = QLabel("Aktuelle Datei: -")
         self.status_label = QLabel("Status: Bereit")
         self.time_label = QLabel("Verstrichene Zeit: 00:00")
@@ -119,7 +120,7 @@ class ProgressDialog(QDialog):
         self.log_text.setReadOnly(True)
         layout.addWidget(self.log_text)
         
-        # Buttons
+        # Button-Leiste
         btn_layout = QHBoxLayout()
         btn_layout.addStretch()
         
@@ -147,7 +148,7 @@ class ProgressDialog(QDialog):
         self.worker.start()
     
     def on_progress_updated(self, progress: int, current_file: str, status: str):
-        """Aktualisiert die Progress-Anzeige."""
+        """Aktualisiert die Progress-Anzeige mit neuen Informationen."""
         self.progress_bar.setValue(progress)
         
         if current_file:
@@ -179,10 +180,10 @@ class ProgressDialog(QDialog):
         total = success_count + failed_count
         self.stats_label.setText(f"Ergebnis: {success_count} erfolgreich, {failed_count} fehlgeschlagen von {total}")
         
-        # Log-Eintrag
+        # Log-Eintrag für den Abschluss
         self.add_log(f"=== {message} ===")
         
-        # Buttons umschalten
+        # Buttons umschalten: Abbruch deaktivieren, Schließen aktivieren
         self.cancel_btn.setEnabled(False)
         self.close_btn.setEnabled(True)
         
@@ -213,21 +214,21 @@ class ProgressDialog(QDialog):
             self.close_btn.setEnabled(True)
     
     def update_time(self):
-        """Aktualisiert die Zeitanzeige."""
+        """Aktualisiert die Zeitanzeige jede Sekunde."""
         elapsed = int(time.time() - self.start_time)
         minutes = elapsed // 60
         seconds = elapsed % 60
         self.time_label.setText(f"Verstrichene Zeit: {minutes:02d}:{seconds:02d}")
     
     def add_log(self, message: str):
-        """Fügt eine Nachricht zum Log hinzu."""
+        """Fügt eine Nachricht zum Log hinzu und scrollt automatisch nach unten."""
         self.log_text.append(message)
         # Automatisch zum Ende scrollen
         scrollbar = self.log_text.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
     
     def closeEvent(self, event):
-        """Behandelt das Schließen des Dialogs."""
+        """Behandelt das Schließen des Dialogs mit sauberem Abbruch."""
         if self.worker and self.worker.isRunning():
             self.cancel_conversion()
         event.accept()
