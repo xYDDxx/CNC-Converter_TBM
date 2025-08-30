@@ -5,13 +5,13 @@ import platform
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QLabel, QPushButton, QListView,
     QComboBox, QLineEdit, QCheckBox, QGridLayout, QHBoxLayout, QVBoxLayout,
-    QFileDialog, QTreeView, QMessageBox, QDialog, QSplashScreen
+    QFileDialog, QTreeView, QMessageBox, QDialog
 )
 from PyQt6.QtGui import QPixmap, QFileSystemModel, QPainter, QPen, QFont, QFontMetrics
 from PyQt6.QtCore import Qt, QDir, QTimer
 
 # Backend-Module importieren
-from logic.config_handler import load_config, update_config, save_config
+from logic.config_handler import load_config, save_config
 from logic.excel_rules import load_rules_from_excel
 from logic.converter import convert_single_file, batch_convert
 from logic.logger import setup_logger, get_logger, log_config_change
@@ -117,10 +117,10 @@ class CNCConverterUI(QMainWindow):
         # Header mit Titel und Logo
         self._setup_header(main_layout)
 
-        # Grid-Layout für die drei Hauptbereiche
+        # Grid-Layout für die drei Hauptbereiche (Quelle, Konverter, Ziel)
         self._setup_main_grid(main_layout)
         
-        # Untere Button-Leiste
+        # Untere Button-Leiste (Reset, Start, Abbruch, Beenden)
         self._setup_button_bar(main_layout)
 
         central_widget.setLayout(main_layout)
@@ -162,9 +162,9 @@ class CNCConverterUI(QMainWindow):
         grid.setHorizontalSpacing(40)
         grid.setVerticalSpacing(5)  # Reduzierter Abstand für kompakteres Layout
 
-        # Drei Hauptbereiche hinzufügen
+        # Drei Hauptbereiche hinzufügen (Spalten 0, 2, 4 für Abstand)
         self.add_source_section(grid, 0)      # Quellverzeichnis
-        self.add_converter_section(grid, 2)   # Konverter-Verzeichnis
+        self.add_converter_section(grid, 2)   # Konverter-Verzeichnis  
         self.add_target_section(grid, 4)      # Zielverzeichnis
 
         main_layout.addLayout(grid)
@@ -285,7 +285,8 @@ class CNCConverterUI(QMainWindow):
         pair_layout.addWidget(self.conv_tree)
         pair_layout.addWidget(self.conv_list)
         grid.addLayout(pair_layout, 2, col_start, 1, 2)
-
+# Leere Zeile für einheitlichen Abstand (wie bei den anderen Bereichen)
+        grid.addWidget(QLabel(""), 3, col_start, 1, 2)
         # Aktives Konverter-File anzeigen
         grid.addWidget(QLabel("Aktives Konverter-File"), 3, col_start, 1, 2)
         self.active_conv_file = QLineEdit()
@@ -336,6 +337,7 @@ class CNCConverterUI(QMainWindow):
         pair_layout.addWidget(self.dst_list)
         grid.addLayout(pair_layout, 2, col_start, 1, 2)
 
+
         # Ziel-Präfix-Einstellungen
         grid.addWidget(QLabel("Ziel-Dateinamen-Präfix anhängen"), 4, col_start, 1, 2)
         grid.addWidget(QLabel("Anzahl Zeichen"), 5, col_start)
@@ -356,17 +358,18 @@ class CNCConverterUI(QMainWindow):
     # ----------------- Explorer-View -----------------
     def create_explorer(self, section: str):
         """Erstellt einen Datei-Explorer mit Tree- und List-View für den angegebenen Bereich."""
+        # FileSystemModel für Datei-Explorer
         model = QFileSystemModel()
         model.setRootPath(QDir.rootPath())
 
-        # Tree-View für Verzeichnisstruktur
+        # Tree-View für Verzeichnisstruktur (links)
         tree = QTreeView()
         tree.setModel(model)
         tree.setRootIndex(model.index(QDir.rootPath()))
         tree.setColumnWidth(0, 150)
         tree.setHeaderHidden(True)
 
-        # List-View für Dateien im ausgewählten Verzeichnis
+        # List-View für Dateien im ausgewählten Verzeichnis (rechts)
         list_view = QListView()
         list_view.setModel(model)
 
@@ -517,17 +520,20 @@ class CNCConverterUI(QMainWindow):
                 
                 for npp_path in notepad_paths:
                     if os.path.exists(npp_path):
-                        subprocess.run([npp_path, file_path], check=False)
+                        # Nicht-blockierend starten mit subprocess.Popen
+                        subprocess.Popen([npp_path, file_path], 
+                                       creationflags=subprocess.CREATE_NEW_CONSOLE if hasattr(subprocess, 'CREATE_NEW_CONSOLE') else 0)
                         return
                 
                 # Fallback: Windows Notepad
-                subprocess.run(["notepad.exe", file_path], check=False)
+                subprocess.Popen(["notepad.exe", file_path], 
+                               creationflags=subprocess.CREATE_NEW_CONSOLE if hasattr(subprocess, 'CREATE_NEW_CONSOLE') else 0)
             else:
                 # Linux/Mac: Standard-Texteditor verwenden
                 if system == "Darwin":  # macOS
-                    subprocess.run(["open", "-t", file_path], check=False)
+                    subprocess.Popen(["open", "-t", file_path])
                 else:  # Linux
-                    subprocess.run(["xdg-open", file_path], check=False)
+                    subprocess.Popen(["xdg-open", file_path])
                     
         except Exception as e:
             QMessageBox.warning(self, "Fehler", f"Datei konnte nicht geöffnet werden:\n{str(e)}")
@@ -539,9 +545,9 @@ class CNCConverterUI(QMainWindow):
             if system == "Windows":
                 os.startfile(file_path)  # Windows: Standard-Programm verwenden
             elif system == "Darwin":  # macOS
-                subprocess.run(["open", file_path], check=False)
+                subprocess.Popen(["open", file_path])
             else:  # Linux
-                subprocess.run(["xdg-open", file_path], check=False)
+                subprocess.Popen(["xdg-open", file_path])
                 
         except Exception as e:
             QMessageBox.warning(self, "Fehler", f"Excel-Datei konnte nicht geöffnet werden:\n{str(e)}")
@@ -555,7 +561,7 @@ class CNCConverterUI(QMainWindow):
         self._loading_config = True
         
         try:
-            # Verzeichnispfade in Button-Texte setzen
+            # Verzeichnispfade in Button-Texte setzen (Standardwerte falls nicht gesetzt)
             source_dir = self.config.get("source_dir", "./input")
             converter_dir = self.config.get("converter_dir", "./data")
             target_dir = self.config.get("target_dir", "./output")
@@ -573,7 +579,7 @@ class CNCConverterUI(QMainWindow):
             if excel_path:
                 self.active_conv_file.setText(os.path.basename(excel_path))
 
-            # Präfix-Einstellungen in UI-Elemente laden
+            # Präfix-Einstellungen in UI-Elemente laden (Quelle)
             src_prefix_count = self.config.get("source_prefix_count", 0)
             src_prefix_specific = self.config.get("source_prefix_specific", False)
             src_prefix_string = self.config.get("source_prefix_string", "")
@@ -582,6 +588,7 @@ class CNCConverterUI(QMainWindow):
             self.chk_src_spec.setChecked(src_prefix_specific)
             self.src_prefix_str.setText(src_prefix_string)
             
+            # Präfix-Einstellungen in UI-Elemente laden (Ziel)
             dst_prefix_count = self.config.get("target_prefix_count", 0)
             dst_prefix_specific = self.config.get("target_prefix_specific", False)
             dst_prefix_string = self.config.get("target_prefix_string", "")
@@ -590,7 +597,7 @@ class CNCConverterUI(QMainWindow):
             self.chk_dst_spec.setChecked(dst_prefix_specific)
             self.dst_prefix_str.setText(dst_prefix_string)
 
-            # Dateiendungen in Eingabefelder laden
+            # Dateiendungen in Eingabefelder laden (mindestens 3 Paare)
             file_endings = self.config.get("file_endings", [])
             while len(file_endings) < 3:
                 file_endings.append({"source": "", "target": ""})
@@ -771,9 +778,6 @@ class CNCConverterUI(QMainWindow):
                             target_prefix_count, target_prefix_specific, target_prefix_string,
                             file_endings, progress_callback=None, cancel_check=None, **kwargs):
         """Führt Batch-Konvertierung aller Dateien im Quellverzeichnis aus."""
-        from logic.excel_rules import load_rules_from_excel
-        from logic.converter import batch_convert
-        
         # Excel-Regeln für die Konvertierung laden
         rules = load_rules_from_excel(excel_path)
         self.logger.info(f"Excel-Regeln geladen: {len(rules)} Einträge")
@@ -797,9 +801,6 @@ class CNCConverterUI(QMainWindow):
                              target_prefix_count, target_prefix_specific, target_prefix_string,
                              file_endings, progress_callback=None, cancel_check=None, **kwargs):
         """Führt Einzeldatei-Konvertierung der ausgewählten Quelldatei aus."""
-        from logic.excel_rules import load_rules_from_excel
-        from logic.converter import convert_single_file
-        
         # Excel-Regeln für die Konvertierung laden
         rules = load_rules_from_excel(excel_path)
         self.logger.info(f"Excel-Regeln geladen: {len(rules)} Einträge")
@@ -886,47 +887,6 @@ class CNCConverterUI(QMainWindow):
         self.logger.info("Alle Eingabewerte zurückgesetzt.")
         QMessageBox.information(self, "Konfiguration zurückgesetzt", 
                               "Alle Eingabewerte wurden auf Standardwerte zurückgesetzt.\nVerzeichnispfade bleiben unverändert.")
-
-    def _validate_and_complete_config(self):
-        """Stellt sicher, dass alle erforderlichen Konfigurationswerte vorhanden sind."""
-        self.logger.info("Validiere Konfiguration...")
-        
-        # Standardwerte definieren
-        required_keys = {
-            "excel_path": "",
-            "source_dir": "./input",
-            "target_dir": "./output", 
-            "converter_dir": "./data",
-            "active_source_file": "",
-            "source_prefix_count": 0,
-            "source_prefix_specific": False,
-            "source_prefix_string": "",
-            "target_prefix_count": 0,
-            "target_prefix_specific": False,
-            "target_prefix_string": "",
-            "file_endings": [
-                {"source": "", "target": ""},
-                {"source": "", "target": ""},
-                {"source": "", "target": ""}
-            ]
-        }
-        
-        # Fehlende Schlüssel ergänzen
-        missing_keys = []
-        for key, default_value in required_keys.items():
-            if key not in self.config:
-                self.config[key] = default_value
-                missing_keys.append(key)
-            elif key == "file_endings" and len(self.config[key]) < 3:
-                # Sicherstellen dass immer 3 Dateiendungs-Paare vorhanden sind
-                while len(self.config[key]) < 3:
-                    self.config[key].append({"source": "", "target": ""})
-                missing_keys.append(f"{key} (auf 3 Paare erweitert)")
-        
-        if missing_keys:
-            self.logger.info(f"Fehlende Konfigurationswerte ergänzt: {missing_keys}")
-        
-        self.logger.info("Konfiguration validiert")
 
 
 if __name__ == "__main__":

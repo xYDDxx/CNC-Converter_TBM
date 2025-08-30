@@ -48,7 +48,7 @@ class ConversionWorker(QThread):
     def update_progress(self, current: int, total: int, current_file: str = "", status: str = ""):
         """Callback für Progress-Updates von der Konvertierungsfunktion."""
         if not self.cancelled:
-            progress = int((current / max(total, 1)) * 100)
+            progress = int((current / max(total, 1)) * 100)  # Prozent berechnen
             self.progress_updated.emit(progress, current_file, status)
     
     def cancel(self):
@@ -89,7 +89,7 @@ class ProgressDialog(QDialog):
         self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.title_label)
         
-        # Fortschrittsbalken
+        # Fortschrittsbalken (0-100%)
         self.progress_bar = QProgressBar()
         self.progress_bar.setMinimum(0)
         self.progress_bar.setMaximum(100)
@@ -101,7 +101,7 @@ class ProgressDialog(QDialog):
         info_frame.setFrameStyle(QFrame.Shape.StyledPanel)
         info_layout = QVBoxLayout()
         
-        # Status-Informationen
+        # Status-Informationen (Datei, Status, Zeit, Statistiken)
         self.current_file_label = QLabel("Aktuelle Datei: -")
         self.status_label = QLabel("Status: Bereit")
         self.time_label = QLabel("Verstrichene Zeit: 00:00")
@@ -114,13 +114,13 @@ class ProgressDialog(QDialog):
         info_frame.setLayout(info_layout)
         layout.addWidget(info_frame)
         
-        # Log-Ausgabe (scrollbar)
+        # Log-Ausgabe (scrollbar, nur lesen)
         self.log_text = QTextEdit()
         self.log_text.setMaximumHeight(80)
         self.log_text.setReadOnly(True)
         layout.addWidget(self.log_text)
         
-        # Button-Leiste
+        # Button-Leiste (Abbrechen/Schließen)
         btn_layout = QHBoxLayout()
         btn_layout.addStretch()
         
@@ -157,6 +157,7 @@ class ProgressDialog(QDialog):
         
         if status:
             self.status_label.setText(f"Status: {status}")
+            # Log-Einträge für Erfolg/Fehler hinzufügen
             if "→" in status:  # Erfolgreiche Konvertierung
                 self.add_log(f"✅ {status}")
             elif "Fehler" in status:
@@ -174,7 +175,7 @@ class ProgressDialog(QDialog):
         
         self.status_label.setText(f"Status: {message}")
         
-        # Statistiken anzeigen
+        # Statistiken anzeigen (Erfolg/Fehler/Total)
         success_count = stats.get('success', 0)
         failed_count = stats.get('failed', 0)
         total = success_count + failed_count
@@ -204,7 +205,7 @@ class ProgressDialog(QDialog):
             self.worker.wait(3000)  # Max 3 Sekunden warten
             
             if self.worker.isRunning():
-                self.worker.terminate()
+                self.worker.terminate()  # Zwangsweise beenden
                 self.add_log("Konvertierung zwangsweise beendet.")
             else:
                 self.add_log("Konvertierung erfolgreich abgebrochen.")
@@ -223,7 +224,7 @@ class ProgressDialog(QDialog):
     def add_log(self, message: str):
         """Fügt eine Nachricht zum Log hinzu und scrollt automatisch nach unten."""
         self.log_text.append(message)
-        # Automatisch zum Ende scrollen
+        # Automatisch zum Ende scrollen (neueste Einträge sichtbar)
         scrollbar = self.log_text.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
     

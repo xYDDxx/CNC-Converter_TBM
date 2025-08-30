@@ -3,21 +3,21 @@ import os
 
 # Standard-Konfiguration mit allen verfügbaren Einstellungen
 DEFAULT_CONFIG = {
-    "excel_path": "./data/convert_table.xlsx",
-    "source_dir": "./input",
-    "target_dir": "./output",
-    "converter_dir": "./data",
-    "active_source_file": "",
+    "excel_path": "./data/convert_table.xlsx",  # Excel-Konverterdatei
+    "source_dir": "./input",                    # Quellverzeichnis
+    "target_dir": "./output",                   # Zielverzeichnis
+    "converter_dir": "./data",                  # Konverter-Verzeichnis
+    "active_source_file": "",                   # Aktive Quelldatei
     
     # Präfix-Handling für Dateinamen
-    "source_prefix_count": 0,
-    "source_prefix_specific": False,
-    "source_prefix_string": "",
-    "target_prefix_count": 0,
-    "target_prefix_specific": False,
-    "target_prefix_string": "",
+    "source_prefix_count": 0,                   # Anzahl Zeichen vom Anfang entfernen
+    "source_prefix_specific": False,            # Nur spezifischen String entfernen
+    "source_prefix_string": "",                 # Spezifischer Quell-Präfix
+    "target_prefix_count": 0,                   # Anzahl Zeichen für neuen Präfix
+    "target_prefix_specific": False,            # Nur bei spezifischem Quell-Präfix
+    "target_prefix_string": "",                 # Neuer Ziel-Präfix
     
-    # Dateiendungen-Mapping von Quelle zu Ziel
+    # Dateiendungen-Mapping von Quelle zu Ziel (3 Paare)
     "file_endings": [
         {"source": "", "target": ""},
         {"source": "", "target": ""},
@@ -39,7 +39,7 @@ def load_config() -> dict:
         with open(CONFIG_FILE, "r", encoding="utf-8") as f:
             config = json.load(f)
             
-            # Sicherstellen dass alle Standard-Schlüssel existieren
+            # Sicherstellen dass alle Standard-Schlüssel existieren (Backward Compatibility)
             missing_keys = []
             for key, default_value in DEFAULT_CONFIG.items():
                 if key not in config:
@@ -67,7 +67,7 @@ def load_config() -> dict:
 def save_config(config: dict):
     """Speichert Konfiguration nach config.json mit Formatierung."""
     try:
-        # Sicherstellen dass alle Standard-Schlüssel vorhanden sind
+        # Sicherstellen dass alle Standard-Schlüssel vorhanden sind (Vollständigkeit)
         for key, default_value in DEFAULT_CONFIG.items():
             if key not in config:
                 config[key] = default_value
@@ -79,18 +79,3 @@ def save_config(config: dict):
         print(f"❌ Fehler beim Speichern der Konfiguration: {e}")
 
 
-def update_config(key: str, value, config_dict: dict = None):
-    """Setzt einen einzelnen Wert in der config.json und speichert sofort.
-    
-    Args:
-        key: Der zu aktualisierende Schlüssel
-        value: Der neue Wert
-        config_dict: Optional: Bestehende Konfiguration (vermeidet doppeltes Laden)
-    """
-    if config_dict is None:
-        # Nur laden wenn keine Konfiguration übergeben wurde
-        config_dict = load_config()
-    
-    config_dict[key] = value
-    save_config(config_dict)
-    return config_dict

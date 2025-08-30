@@ -19,7 +19,7 @@ def validate_directories(source_dir: str, target_dir: str, converter_dir: str = 
     errors = []
     logger = get_logger()
     
-    # Quellverzeichnis prüfen
+    # Quellverzeichnis prüfen (muss existieren)
     if not source_dir or not source_dir.strip():
         errors.append("Quellverzeichnis ist nicht angegeben.")
     elif not os.path.exists(source_dir):
@@ -27,7 +27,7 @@ def validate_directories(source_dir: str, target_dir: str, converter_dir: str = 
     elif not os.path.isdir(source_dir):
         errors.append(f"Quellverzeichnis ist keine gültige Ordner: {source_dir}")
     
-    # Zielverzeichnis prüfen
+    # Zielverzeichnis prüfen (wird erstellt falls nicht vorhanden)
     if not target_dir or not target_dir.strip():
         errors.append("Zielverzeichnis ist nicht angegeben.")
     else:
@@ -37,7 +37,7 @@ def validate_directories(source_dir: str, target_dir: str, converter_dir: str = 
         except Exception as e:
             errors.append(f"Zielverzeichnis kann nicht erstellt werden: {str(e)}")
     
-    # Verzeichnisse dürfen nicht identisch sein
+    # Verzeichnisse dürfen nicht identisch sein (Sicherheit)
     if source_dir and target_dir:
         try:
             source_path = Path(source_dir).resolve()
@@ -45,12 +45,6 @@ def validate_directories(source_dir: str, target_dir: str, converter_dir: str = 
             
             if source_path == target_path:
                 errors.append("Quell- und Zielverzeichnis dürfen nicht identisch sein.")
-            
-            # Prüfen ob Zielverzeichnis Unterordner von Quelle ist (oder umgekehrt)
-            if source_path in target_path.parents:
-                errors.append("Zielverzeichnis darf kein Unterordner des Quellverzeichnisses sein.")
-            elif target_path in source_path.parents:
-                errors.append("Quellverzeichnis darf kein Unterordner des Zielverzeichnisses sein.")
                 
         except Exception as e:
             logger.warning(f"Pfad-Vergleich fehlgeschlagen: {e}")
@@ -93,7 +87,7 @@ def validate_excel_file(excel_path: str) -> Tuple[bool, List[str]]:
         errors.append(f"Excel-Pfad ist keine Datei: {excel_path}")
         return False, errors
     
-    # Dateiendung prüfen
+    # Dateiendung prüfen (.xlsx oder .xls)
     valid_extensions = ['.xlsx', '.xls']
     file_ext = os.path.splitext(excel_path)[1].lower()
     if file_ext not in valid_extensions:
@@ -106,7 +100,7 @@ def validate_excel_file(excel_path: str) -> Tuple[bool, List[str]]:
         wb = openpyxl.load_workbook(excel_path, data_only=True)
         sheet = wb.active
         
-        # Mindestens eine Regel prüfen
+        # Mindestens eine Regel prüfen (ab Zeile 2, Header in Zeile 1)
         rule_count = 0
         for row in sheet.iter_rows(min_row=2, values_only=True):
             q = row[0]
@@ -144,7 +138,7 @@ def validate_source_files(source_dir: str, batch_mode: bool, active_source_file:
     logger = get_logger()
     
     if batch_mode:
-        # Batch-Modus: Mindestens eine Datei im Quellverzeichnis
+        # Batch-Modus: Mindestens eine Datei im Quellverzeichnis (flache Struktur)
         if not os.path.isdir(source_dir):
             errors.append("Quellverzeichnis für Batch-Modus ungültig.")
             return False, errors
@@ -162,7 +156,7 @@ def validate_source_files(source_dir: str, batch_mode: bool, active_source_file:
             errors.append(f"Fehler beim Lesen des Quellverzeichnisses: {str(e)}")
     
     else:
-        # Einzeldatei-Modus: Spezifische Datei prüfen
+        # Einzeldatei-Modus: Spezifische Datei prüfen (muss existieren)
         if not active_source_file:
             errors.append("Für Einzeldatei-Konvertierung muss eine Quelldatei ausgewählt sein.")
         elif not os.path.exists(active_source_file):
@@ -190,7 +184,7 @@ def validate_filename_settings(source_prefix_count: int, source_prefix_string: s
     errors = []
     logger = get_logger()
     
-    # Quell-Präfix validieren
+    # Quell-Präfix validieren (Länge und Realismus)
     if source_prefix_count > 0:
         if source_prefix_string and len(source_prefix_string) != source_prefix_count:
             errors.append(f"Quell-Präfix '{source_prefix_string}' hat {len(source_prefix_string)} Zeichen, "
@@ -198,7 +192,7 @@ def validate_filename_settings(source_prefix_count: int, source_prefix_string: s
         elif source_prefix_count > 20:  # Sinnvolle Obergrenze
             errors.append(f"Quell-Präfix-Länge von {source_prefix_count} ist unrealistisch groß (max. 20).")
     
-    # Ziel-Präfix validieren
+    # Ziel-Präfix validieren (Länge und Realismus)
     if target_prefix_count > 0:
         if target_prefix_string and len(target_prefix_string) != target_prefix_count:
             errors.append(f"Ziel-Präfix '{target_prefix_string}' hat {len(target_prefix_string)} Zeichen, "
@@ -206,7 +200,7 @@ def validate_filename_settings(source_prefix_count: int, source_prefix_string: s
         elif target_prefix_count > 20:  # Sinnvolle Obergrenze
             errors.append(f"Ziel-Präfix-Länge von {target_prefix_count} ist unrealistisch groß (max. 20).")
     
-    # Dateiendungen validieren
+    # Dateiendungen validieren (Format und Länge)
     for i, mapping in enumerate(file_endings):
         if not mapping:
             continue
@@ -253,12 +247,12 @@ def validate_write_permissions(target_dir: str) -> Tuple[bool, List[str]]:
     logger = get_logger()
     
     try:
-        # Test-Datei schreiben
+        # Test-Datei schreiben (Schreibberechtigung prüfen)
         test_file = os.path.join(target_dir, ".write_test_cnc_converter")
         with open(test_file, 'w') as f:
             f.write("test")
         
-        # Test-Datei löschen
+        # Test-Datei löschen (Löschberechtigung prüfen)
         os.remove(test_file)
         logger.debug(f"Schreibberechtigung für Zielverzeichnis bestätigt: {target_dir}")
         
@@ -287,7 +281,7 @@ def comprehensive_validation(config: dict, batch_mode: bool) -> Tuple[bool, List
     
     logger.debug("=== Umfassende Validierung gestartet ===")
     
-    # 1. Verzeichnisse validieren
+    # 1. Verzeichnisse validieren (Quelle, Ziel, Konverter)
     source_dir = config.get("source_dir", "")
     target_dir = config.get("target_dir", "")
     converter_dir = config.get("converter_dir", "")
@@ -295,17 +289,17 @@ def comprehensive_validation(config: dict, batch_mode: bool) -> Tuple[bool, List
     is_valid, errors = validate_directories(source_dir, target_dir, converter_dir)
     all_errors.extend(errors)
     
-    # 2. Excel-Datei validieren
+    # 2. Excel-Datei validieren (Pfad und Inhalt)
     excel_path = config.get("excel_path", "")
     is_valid, errors = validate_excel_file(excel_path)
     all_errors.extend(errors)
     
-    # 3. Quelldateien validieren
+    # 3. Quelldateien validieren (je nach Modus)
     active_source_file = config.get("active_source_file", "")
     is_valid, errors = validate_source_files(source_dir, batch_mode, active_source_file)
     all_errors.extend(errors)
     
-    # 4. Dateinamen-Einstellungen validieren
+    # 4. Dateinamen-Einstellungen validieren (Präfixe und Endungen)
     file_endings = config.get("file_endings", [])
     is_valid, errors = validate_filename_settings(
         config.get("source_prefix_count", 0),
@@ -316,7 +310,7 @@ def comprehensive_validation(config: dict, batch_mode: bool) -> Tuple[bool, List
     )
     all_errors.extend(errors)
     
-    # 5. Schreibberechtigungen prüfen
+    # 5. Schreibberechtigungen prüfen (Zielverzeichnis)
     if target_dir and os.path.exists(target_dir):
         is_valid, errors = validate_write_permissions(target_dir)
         all_errors.extend(errors)

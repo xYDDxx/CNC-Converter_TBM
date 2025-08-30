@@ -1,6 +1,5 @@
 import os
 from typing import Dict, List, Callable, Optional
-from logic.excel_rules import load_rules_from_excel
 from logic.file_handler import load_cnc_file, apply_rules_to_cnc, save_cnc_file, check_conversion, process_filename
 from logic.logger import get_logger, log_conversion_start, log_conversion_success, log_conversion_error, log_batch_summary
 
@@ -21,7 +20,14 @@ def convert_single_file(file_path: str, target_dir: str, rules: dict,
     Args:
         file_path: Pfad zur Quelldatei
         target_dir: Zielverzeichnis
-        rules: Konvertierungsregeln
+        rules: Konvertierungsregeln aus Excel
+        source_prefix_count: Anzahl Zeichen vom Anfang entfernen
+        source_prefix_specific: Nur spezifischen String entfernen
+        source_prefix_string: Spezifischer Quell-Präfix
+        target_prefix_count: Anzahl Zeichen für neuen Präfix
+        target_prefix_specific: Nur bei spezifischem Quell-Präfix
+        target_prefix_string: Neuer Ziel-Präfix
+        file_endings: Dateiendungs-Mappings
         progress_callback: Callback für Progress-Updates (current, total, filename, status)
         cancel_check: Callback zum Prüfen ob abgebrochen werden soll
     
@@ -58,15 +64,16 @@ def convert_single_file(file_path: str, target_dir: str, rules: dict,
         if progress_callback:
             progress_callback(0, 1, file_path, f"Konvertiere {original_filename}")
         
+        # Regeln auf CNC-Inhalt anwenden
         converted = apply_rules_to_cnc(lines, rules)
         
-        # Angewendete Regeln zählen
+        # Angewendete Regeln zählen (für Logging)
         applied_rules = count_applied_rules(lines, converted, rules)
         
         if cancel_check and cancel_check():
             raise Exception("Konvertierung abgebrochen")
         
-        # Dateiname verarbeiten
+        # Dateiname verarbeiten (Präfixe und Endungen)
         new_filename = process_filename(
             original_filename,
             source_prefix_count=source_prefix_count,
@@ -86,7 +93,7 @@ def convert_single_file(file_path: str, target_dir: str, rules: dict,
         out_path = os.path.join(target_dir, new_filename)
         save_cnc_file(converted, out_path)
         
-        # Konvertierung prüfen
+        # Konvertierung prüfen (verbleibende Quellbefehle)
         check_conversion(converted, rules)
         
         # Progress-Update: Fertig
@@ -125,6 +132,16 @@ def batch_convert(source_dir: str, target_dir: str, rules: dict,
     und speichert sie im Zielordner.
     
     Args:
+        source_dir: Quellverzeichnis
+        target_dir: Zielverzeichnis
+        rules: Konvertierungsregeln aus Excel
+        source_prefix_count: Anzahl Zeichen vom Anfang entfernen
+        source_prefix_specific: Nur spezifischen String entfernen
+        source_prefix_string: Spezifischer Quell-Präfix
+        target_prefix_count: Anzahl Zeichen für neuen Präfix
+        target_prefix_specific: Nur bei spezifischem Quell-Präfix
+        target_prefix_string: Neuer Ziel-Präfix
+        file_endings: Dateiendungs-Mappings
         progress_callback: Callback für Progress-Updates (current, total, filename, status)
         cancel_check: Callback zum Prüfen ob abgebrochen werden soll
         
@@ -145,7 +162,7 @@ def batch_convert(source_dir: str, target_dir: str, rules: dict,
     if not os.path.exists(target_dir):
         os.makedirs(target_dir, exist_ok=True)
 
-    # Nur Dateien im aktuellen Ordner, KEINE Unterordner
+    # Nur Dateien im aktuellen Ordner, KEINE Unterordner (flache Struktur)
     files = []
     try:
         for item in os.listdir(source_dir):
@@ -168,7 +185,7 @@ def batch_convert(source_dir: str, target_dir: str, rules: dict,
     success, failed = 0, 0
     
     for i, filename in enumerate(files, 1):
-        # Abbruch-Check
+        # Abbruch-Check vor jeder Datei
         if cancel_check and cancel_check():
             logger.info("🛑 Batch-Konvertierung abgebrochen vom Benutzer.")
             break
@@ -180,6 +197,7 @@ def batch_convert(source_dir: str, target_dir: str, rules: dict,
             progress_callback(i-1, total_files, file_path, f"Bearbeite {filename} ({i}/{total_files})")
         
         try:
+            # Einzeldatei konvertieren
             convert_single_file(
                 file_path, target_dir, rules,
                 source_prefix_count=source_prefix_count,
@@ -231,7 +249,7 @@ def count_applied_rules(original_lines: List[str], converted_lines: List[str], r
     if not rules:
         return 0
         
-    # Einfache Heuristik: Zähle wie viele Quellstrings im Original vorkommen
+    # Einfache Heuristik: Zähle wie viele Quellstrings im Original vorkommen (für Logging)
     original_text = " ".join(original_lines).upper()
     applied_count = 0
     
@@ -242,25 +260,3 @@ def count_applied_rules(original_lines: List[str], converted_lines: List[str], r
     return applied_count
 
 
-def convert_with_progress(conversion_func, *args, **kwargs):
-    """
-    Wrapper-Funktion für Konvertierungen mit Progress-Tracking.
-    
-    Args:
-        conversion_func: Konvertierungsfunktion (convert_single_file oder batch_convert)
-        *args, **kwargs: Argumente für die Konvertierungsfunktion
-        
-    Returns:
-        Ergebnis der Konvertierungsfunktion
-    """
-    logger = get_logger()
-    
-    try:
-        logger.debug("=== Konvertierung mit Progress-Tracking gestartet ===")
-        result = conversion_func(*args, **kwargs)
-        logger.debug("=== Konvertierung erfolgreich abgeschlossen ===")
-        return result
-        
-    except Exception as e:
-        logger.error(f"=== Konvertierung fehlgeschlagen: {str(e)} ===")
-        raise

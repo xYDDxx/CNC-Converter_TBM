@@ -11,7 +11,7 @@ def setup_logger():
     logs_dir = "./logs"
     os.makedirs(logs_dir, exist_ok=True)
     
-    # Log-Datei mit Datum
+    # Log-Datei mit Datum (täglich neue Datei)
     log_filename = f"cnc_converter_{datetime.now().strftime('%Y%m%d')}.log"
     log_path = os.path.join(logs_dir, log_filename)
     
@@ -19,17 +19,17 @@ def setup_logger():
     logger = logging.getLogger("cnc_converter")
     logger.setLevel(logging.DEBUG)
     
-    # Verhindere doppelte Handler
+    # Verhindere doppelte Handler (nur einmal einrichten)
     if not logger.handlers:
-        # File Handler
+        # File Handler (alle Meldungen)
         file_handler = logging.FileHandler(log_path, encoding='utf-8')
         file_handler.setLevel(logging.DEBUG)
         
-        # Console Handler für wichtige Meldungen
+        # Console Handler (nur wichtige Meldungen)
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.INFO)
         
-        # Formatter
+        # Formatter für einheitliche Ausgabe
         formatter = logging.Formatter(
             '%(asctime)s - %(levelname)s - %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S'
