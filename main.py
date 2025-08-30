@@ -81,7 +81,8 @@ class CNCConverterUI(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("CNC-Konverter")
-        self.setGeometry(200, 200, 1400, 800)
+        # Fenster maximiert setzen
+        self.setWindowState(Qt.WindowState.WindowMaximized)
 
         # Logging-System initialisieren
         setup_logger()
