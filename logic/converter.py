@@ -23,10 +23,10 @@ def convert_single_file(file_path: str, target_dir: str, rules: dict,
         rules: Konvertierungsregeln aus Excel
         source_prefix_count: Anzahl Zeichen vom Anfang entfernen
         source_prefix_specific: Nur spezifischen String entfernen
-        source_prefix_string: Spezifischer Quell-Präfix
-        target_prefix_count: Anzahl Zeichen für neuen Präfix
-        target_prefix_specific: Nur bei spezifischem Quell-Präfix
-        target_prefix_string: Neuer Ziel-Präfix
+        source_prefix_string: Spezifischer Quell-Praefix
+        target_prefix_count: Anzahl Zeichen fuer neuen Praefix
+        target_prefix_specific: Nur bei spezifischem Quell-Praefix
+        target_prefix_string: Neuer Ziel-Praefix
         file_endings: Dateiendungs-Mappings
         progress_callback: Callback für Progress-Updates (current, total, filename, status)
         cancel_check: Callback zum Prüfen ob abgebrochen werden soll
@@ -137,10 +137,10 @@ def batch_convert(source_dir: str, target_dir: str, rules: dict,
         rules: Konvertierungsregeln aus Excel
         source_prefix_count: Anzahl Zeichen vom Anfang entfernen
         source_prefix_specific: Nur spezifischen String entfernen
-        source_prefix_string: Spezifischer Quell-Präfix
-        target_prefix_count: Anzahl Zeichen für neuen Präfix
-        target_prefix_specific: Nur bei spezifischem Quell-Präfix
-        target_prefix_string: Neuer Ziel-Präfix
+        source_prefix_string: Spezifischer Quell-Praefix
+        target_prefix_count: Anzahl Zeichen fuer neuen Praefix
+        target_prefix_specific: Nur bei spezifischem Quell-Praefix
+        target_prefix_string: Neuer Ziel-Praefix
         file_endings: Dateiendungs-Mappings
         progress_callback: Callback für Progress-Updates (current, total, filename, status)
         cancel_check: Callback zum Prüfen ob abgebrochen werden soll
